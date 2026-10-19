@@ -83,7 +83,7 @@ struct OnboardingDoneView: View {
                 Text(tr("· hechas por nosotros, gratis y open source", "· made by us, free and open source")).font(.subheadline).foregroundStyle(.secondary)
             }
             PackCard(symbol: "contextualmenu.and.cursorarrow",
-                     title: tr("Right-Click", "Right-Click"),
+                     title: "RightYourClick",
                      detail: tr("Un menú de clic derecho mejorado para Finder, con todas las extensiones en un solo sitio. ExSplit se integra en él.",
                                 "An improved Finder right-click menu with all the extensions in one place. ExSplit plugs into it."),
                      isOn: rightClick.binding)
