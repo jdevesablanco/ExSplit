@@ -10,6 +10,7 @@ struct OnboardingView: View {
     @StateObject private var stepBox: Local<Int>
     @StateObject private var installQuickBox = Local(true)
     @StateObject private var enableExtBox = Local(Integrations.finderExtensionBundled)
+    @StateObject private var manageBox = Local(false)
     @StateObject private var doneBox: Local<Bool>   // pantalla final
     @StateObject private var dirBox = Local(1)   // 1 = avanzando, -1 = retrocediendo (dirección de la transición)
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -173,21 +174,19 @@ struct OnboardingView: View {
                         "How you use it: right-click a PDF → Quick Actions → “Split exercises with ExSplit” (also under Services and Open With). The result appears in the same folder."))
                     .font(.callout).fixedSize(horizontal: false, vertical: true)
             } icon: { Image(systemName: "cursorarrow.click.2").foregroundStyle(Color.accentColor) }
-            Picker("", selection: $model.s.showMenuBarIcon) {
-                Text(tr("Sí, mostrar el icono (recomendado)", "Yes, show the icon (recommended)")).tag(true)
-                Text(tr("No, prefiero que no ocupe sitio", "No, I'd rather it took no space")).tag(false)
-            }.pickerStyle(.radioGroup).labelsHidden()
-            if model.s.showMenuBarIcon {
-                Toggle(tr("Abrir al iniciar sesión", "Open at login"), isOn: $model.s.launchAtLogin)
-            } else {
+            Toggle(tr("Abrir al iniciar sesión", "Open at login"), isOn: $model.s.launchAtLogin)
+            VStack(alignment: .leading, spacing: 6) {
                 Label {
-                    Text(tr("Sin icono la app solo se abre cuando la usas y se cierra sola. Para cambiar ajustes más adelante: ábrela desde Spotlight o Launchpad, o mantén ⌥ (Option) al lanzar la acción desde el clic derecho para elegir opciones solo esa vez.",
-                            "Without the icon the app only opens when you use it and quits by itself. To change settings later: open it from Spotlight or Launchpad, or hold ⌥ (Option) when you run the action from the right-click menu to pick options just that once."))
-                        .font(.callout).fixedSize(horizontal: false, vertical: true)
-                } icon: { Image(systemName: "lightbulb").foregroundStyle(.yellow) }
-                .padding(10).background(RoundedRectangle(cornerRadius: 8).fill(Color.yellow.opacity(0.12)))
+                    Text(tr("¿Barra de menús demasiado llena?", "Menu bar getting too crowded?")).font(.callout.bold())
+                } icon: { Image(systemName: "menubar.rectangle").foregroundStyle(Color.accentColor) }
+                Text(tr("Instala también nuestro gestor de barra de menús: ligero, gratis y open source. Deslizas los iconos a «siempre visibles», «ocultos» o «siempre ocultos».",
+                        "Also install our menu bar manager: lightweight, free and open source. Slide icons to “always visible”, “hidden” or “always hidden”."))
+                    .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Toggle(tr("Instalar el gestor de barra de menús (Próximamente)", "Install the menu bar manager (Coming soon)"), isOn: $manageBox.v)
             }
+            .padding(10).background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
         }
+        .onAppear { model.s.showMenuBarIcon = true }
     }
 
     var menuBarMock: some View {
