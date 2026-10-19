@@ -33,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     }
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        PackCatalog.isSpanish = { tr("es", "en") == "es" }
         if let dir = ProcessInfo.processInfo.environment["EXSPLIT_SNAPSHOT"] { Snapshot.run(model: model, dir: dir); NSApp.terminate(nil); return }
         Lang.forced = model.s.language
         let defaultLaunch = (n.userInfo?["NSApplicationLaunchIsDefaultLaunchKey"] as? Bool) ?? true

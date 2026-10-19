@@ -13,9 +13,53 @@ enum Integrations {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Services/\(tr("Dividir ejercicios con ExSplit", "Split exercises with ExSplit")).workflow", isDirectory: true)
     }
-    static var quickActionInstalled: Bool { FileManager.default.fileExists(atPath: workflowURL.path) }
+    static var quickActionInstalled: Bool {
+        FileManager.default.fileExists(atPath: workflowURL.path) || (rightYourClickInstalled && FileManager.default.fileExists(atPath: rycActionURL.path))
+    }
+
+    // MARK: RightYourClick (menú de clic derecho compartido del pack)
+    // Si está instalada, ExSplit no crea su propia Acción rápida: declara la acción en el registro de RightYourClick,
+    // que genera y mantiene la Acción rápida (y la lista en su selector). Si no, ExSplit sigue con la suya.
+
+    static let rycBundleID = "com.jdevesablanco.rightyourclick"
+    static var rightYourClickInstalled: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: rycBundleID) != nil }
+    static var rycActionURL: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("RightYourClick/actions/\(bundleID).split.json")
+    }
+
+    static func registerWithRightYourClick() throws {
+        let spec: [String: Any] = [
+            "schema": 1,
+            "id": "\(bundleID).split",
+            "title": ["en": "Split exercises with ExSplit", "es": "Dividir ejercicios con ExSplit"],
+            "symbol": "rectangle.split.1x2",
+            "fileTypes": ["com.adobe.pdf"],
+            "bundleID": bundleID,
+            "owner": "ExSplit",
+            // nuestra Acción rápida propia: RightYourClick la retira para que no salga dos veces
+            "replaces": ["Split exercises with ExSplit", "Dividir ejercicios con ExSplit"],
+        ]
+        try FileManager.default.createDirectory(at: rycActionURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let d = try JSONSerialization.data(withJSONObject: spec, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
+        try d.write(to: rycActionURL, options: .atomic)
+        pingRightYourClick()
+    }
+
+    /// RightYourClick relee el registro y regenera las Acciones rápidas (en segundo plano, sin ventanas).
+    static func pingRightYourClick() {
+        guard rightYourClickInstalled, let u = URL(string: "rightyourclick://sync") else { return }
+        let cfg = NSWorkspace.OpenConfiguration()
+        cfg.activates = false
+        if let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: rycBundleID) {
+            NSWorkspace.shared.open([u], withApplicationAt: app, configuration: cfg)
+        }
+    }
 
     static func installQuickAction() throws {
+        // Siempre se declara en el registro (si RightYourClick llega después, la recoge sola).
+        try? registerWithRightYourClick()
+        if rightYourClickInstalled { return }
         let fm = FileManager.default
         let contents = workflowURL.appendingPathComponent("Contents", isDirectory: true)
         try? fm.removeItem(at: workflowURL)
@@ -133,6 +177,8 @@ enum Integrations {
 
     static func removeQuickAction() {
         try? FileManager.default.removeItem(at: workflowURL)
+        try? FileManager.default.removeItem(at: rycActionURL)
+        pingRightYourClick()
         refreshServices()
     }
 

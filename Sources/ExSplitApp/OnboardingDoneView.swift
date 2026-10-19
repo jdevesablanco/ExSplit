@@ -1,15 +1,13 @@
 import SwiftUI
 import ExSplitCore
 
-/// Pantalla final del onboarding (PROTOTIPO): animación de «todo listo» + packs de apps que «pair well» con ExSplit.
-/// La instalación de los packs aún no está conectada: el botón solo cierra el onboarding.
+/// Pantalla final del onboarding: animación de «todo listo» + «Combina bien con» (PackCatalog.swift, común a las apps del pack).
 struct OnboardingDoneView: View {
     var finish: () -> Void
     var startPhase: Int = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var phase: Local<Int>          // 0 inicio · 1 anillo · 2 check · 3 contenido
-    @StateObject private var rightClick = Local(true)
-    @StateObject private var quitAll = Local(false)
+    @StateObject private var packs = PackStore()
 
     init(finish: @escaping () -> Void, startPhase: Int = 0) {
         self.finish = finish
@@ -17,7 +15,6 @@ struct OnboardingDoneView: View {
         _phase = StateObject(wrappedValue: Local(startPhase))
     }
 
-    private var selected: Int { (rightClick.v ? 1 : 0) + (quitAll.v ? 1 : 0) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -31,15 +28,14 @@ struct OnboardingDoneView: View {
                 .font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 .padding(.top, 4).padding(.horizontal, 70)
                 .opacity(phase.v >= 3 ? 1 : 0).offset(y: phase.v >= 3 ? 0 : 10)
-            packs
-                .padding(.top, 24).padding(.horizontal, 44)
+            PackAppsSection(store: packs, compact: true)
+                .padding(.top, 16).padding(.horizontal, 44)
                 .opacity(phase.v >= 3 ? 1 : 0).offset(y: phase.v >= 3 ? 0 : 18)
             Spacer(minLength: 8)
             Divider()
             HStack {
                 Spacer()
-                if selected > 0 { Button(tr("Ahora no", "Not now")) { finish() } }
-                Button(selected > 0 ? tr("Instalar (\(selected)) y terminar", "Install (\(selected)) and finish") : tr("Terminar", "Finish")) { finish() }
+                Button(tr("Terminar", "Finish")) { finish() }
                     .keyboardShortcut(.defaultAction)
             }.padding(16)
         }
@@ -74,67 +70,6 @@ struct OnboardingDoneView: View {
                 .frame(width: 38, height: 28)
         }
         .frame(height: 130)
-    }
-
-    private var packs: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 6) {
-                Text(tr("Pairs well with ExSplit", "Pairs well with ExSplit")).font(.headline)
-                Text(tr("· hechas por nosotros, gratis y open source", "· made by us, free and open source")).font(.subheadline).foregroundStyle(.secondary)
-            }
-            PackCard(symbol: "contextualmenu.and.cursorarrow",
-                     title: "RightYourClick",
-                     detail: tr("Un menú de clic derecho mejorado para Finder, con todas las extensiones en un solo sitio. ExSplit se integra en él.",
-                                "An improved Finder right-click menu with all the extensions in one place. ExSplit plugs into it."),
-                     isOn: rightClick.binding)
-            PackCard(symbol: "power",
-                     title: tr("QuitAll", "QuitAll"),
-                     badge: tr("Próximamente", "Coming soon"),
-                     detail: tr("Cierra todas las apps con un clic, menos las que elijas: esas se ocultan o se dejan como están. Vive en la barra de menús y en el clic derecho del escritorio.",
-                                "Quits every app in one click except the ones you pick, which get hidden or left as they are. Lives in the menu bar and in the desktop right-click menu."),
-                     isOn: quitAll.binding)
-        }
-    }
-}
-
-private extension Local where T == Bool {
-    var binding: Binding<Bool> { Binding(get: { self.v }, set: { self.v = $0 }) }
-}
-
-struct PackCard: View {
-    let symbol: String
-    let title: String
-    var badge: String? = nil
-    let detail: String
-    @Binding var isOn: Bool
-
-    var body: some View {
-        Button { withAnimation(.easeOut(duration: 0.15)) { isOn.toggle() } } label: {
-            HStack(spacing: 14) {
-                Image(systemName: symbol).font(.system(size: 20, weight: .medium)).foregroundStyle(.white)
-                    .frame(width: 46, height: 46)
-                    .background(RoundedRectangle(cornerRadius: 11, style: .continuous)
-                        .fill(LinearGradient(colors: [Color.accentColor, Color.accentColor.opacity(0.65)], startPoint: .topLeading, endPoint: .bottomTrailing)))
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 8) {
-                        Text(title).font(.system(size: 14, weight: .semibold))
-                        if let badge { Text(badge).font(.system(size: 10, weight: .semibold))
-                            .padding(.horizontal, 7).padding(.vertical, 2)
-                            .background(Capsule().fill(Color.gray.opacity(0.25))) }
-                    }
-                    Text(detail).font(.caption).foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true).multilineTextAlignment(.leading)
-                }
-                Spacer(minLength: 8)
-                Image(systemName: isOn ? "checkmark.square.fill" : "square")
-                    .font(.system(size: 20)).foregroundStyle(isOn ? Color.accentColor : Color.secondary.opacity(0.7))
-            }
-            .padding(14)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(isOn ? Color.accentColor.opacity(0.10) : Color.gray.opacity(0.08)))
-            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(isOn ? Color.accentColor : Color.gray.opacity(0.3), lineWidth: isOn ? 2 : 1))
-            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        }
-        .buttonStyle(.plain)
     }
 }
 

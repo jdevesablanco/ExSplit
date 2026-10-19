@@ -15,6 +15,7 @@ struct SettingsView: View {
                 FilesTab(model: model).tabItem { Label(tr("Archivos", "Files"), systemImage: "folder") }
                 DetectionTab(model: model).tabItem { Label(tr("Detección", "Detection"), systemImage: "text.magnifyingglass") }
                 IntegrationTab(model: model).tabItem { Label(tr("Finder", "Finder"), systemImage: "cursorarrow.click.2") }
+                PackTab().tabItem { Label(tr("Combina bien con", "Pairs well with"), systemImage: "square.grid.2x2") }
                 AboutTab(model: model).tabItem { Label(tr("Acerca de", "About"), systemImage: "info.circle") }
             }
             .frame(minWidth: 500)
@@ -244,6 +245,15 @@ struct IntegrationTab: View {
             Spacer()
             action()
         }.padding(.vertical, 2)
+    }
+}
+
+// MARK: Combina bien con
+
+struct PackTab: View {
+    @StateObject private var packs = PackStore()
+    var body: some View {
+        ScrollView { PackAppsSection(store: packs).padding(16) }
     }
 }
 
