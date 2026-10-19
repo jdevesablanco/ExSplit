@@ -88,7 +88,7 @@ struct OnboardingDoneView: View {
                                 "An improved Finder right-click menu with all the extensions in one place. ExSplit plugs into it."),
                      isOn: rightClick.binding)
             PackCard(symbol: "power",
-                     title: tr("Quit All", "Quit All"),
+                     title: tr("QuitAll", "QuitAll"),
                      badge: tr("Próximamente", "Coming soon"),
                      detail: tr("Cierra todas las apps con un clic, menos las que elijas: esas se ocultan o se dejan como están. Vive en la barra de menús y en el clic derecho del escritorio.",
                                 "Quits every app in one click except the ones you pick, which get hidden or left as they are. Lives in the menu bar and in the desktop right-click menu."),
