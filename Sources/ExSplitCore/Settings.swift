@@ -48,6 +48,8 @@ public enum AnswerSpace: String, Codable, CaseIterable, Identifiable, Sendable {
 public enum OriginalAction: String, Codable, CaseIterable, Identifiable, Sendable {
     /// Mueve el original a una subcarpeta (por defecto `_Original`).
     case moveToFolder
+    /// Mueve el original a ~/Documents/<nombre> (todos los PDFs que uses acaban ahí).
+    case moveToDocuments
     /// Manda el original a la papelera.
     case trash
     /// Deja el original donde está (el resultado lleva un sufijo en el nombre).
@@ -73,7 +75,7 @@ public struct Settings: Codable, Equatable, Sendable {
     public var paper: PaperSize = .a4
     public var margin: Double = 36
     public var minScale: Double = 0.85
-    public var answerSpace: AnswerSpace = .blank
+    public var answerSpace: AnswerSpace = .lines
     // Etiqueta
     public var labelEnabled: Bool = true
     /// Vacío = plantilla por defecto del idioma («Ejercicio {n}» / «Exercise {n}»).
@@ -91,7 +93,7 @@ public struct Settings: Codable, Equatable, Sendable {
     public var outputNaming: OutputNaming = .sameAsOriginal
     /// Vacío = sufijo por defecto del idioma.
     public var outputSuffix: String = ""
-    public var originalAction: OriginalAction = .moveToFolder
+    public var originalAction: OriginalAction = .moveToDocuments
     public var originalFolderName: String = "ExSplit"
     public var hideOriginalFolder: Bool = false
     // Comportamiento
@@ -120,7 +122,8 @@ public struct Settings: Codable, Equatable, Sendable {
         get(.labelPosition, &labelPosition); get(.labelFontSize, &labelFontSize); get(.labelGray, &labelGray)
         get(.customPattern, &customPattern); get(.ocr, &ocr); get(.ocrLanguages, &ocrLanguages)
         get(.outputNaming, &outputNaming); get(.outputSuffix, &outputSuffix); get(.originalAction, &originalAction)
-        get(.originalFolderName, &originalFolderName); get(.hideOriginalFolder, &hideOriginalFolder)
+        if originalAction == .moveToFolder { originalAction = .moveToDocuments }
+        get(.originalFolderName, &originalFolderName); originalFolderName = "ExSplit"; get(.hideOriginalFolder, &hideOriginalFolder)
         get(.askBeforeEachRun, &askBeforeEachRun); get(.notify, &notify); get(.revealResult, &revealResult); get(.openResult, &openResult)
         get(.language, &language); get(.showMenuBarIcon, &showMenuBarIcon); get(.launchAtLogin, &launchAtLogin); get(.onboardingDone, &onboardingDone)
     }

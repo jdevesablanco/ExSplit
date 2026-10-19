@@ -5,7 +5,7 @@ let usage = """
 exsplit — divide un PDF de ejercicios en una hoja por ejercicio.
 
 USO
-  exsplit split <archivo.pdf>... [opciones]     divide aplicando tus ajustes (original → subcarpeta ExSplit, etc.)
+  exsplit split <archivo.pdf>... [opciones]     divide aplicando tus ajustes (original → Documentos/ExSplit, etc.)
   exsplit generate <entrada.pdf> <salida.pdf>   solo genera, sin tocar nada más
   exsplit analyze <archivo.pdf>                 cuenta ejercicios sin escribir
   exsplit undo                                  deshace la última división
@@ -45,7 +45,7 @@ while i < args.count {
     case "--label-pos": s.labelPosition = LabelPosition(rawValue: next(a)) ?? s.labelPosition
     case "--pattern": s.customPattern = next(a)
     case "--ocr": s.ocr = OCRMode(rawValue: next(a)) ?? s.ocr
-    case "--original": s.originalAction = ["move": .moveToFolder, "trash": .trash, "keep": .keep][next(a)] ?? s.originalAction
+    case "--original": s.originalAction = ["move": .moveToDocuments, "documents": .moveToDocuments, "trash": .trash, "keep": .keep][next(a)] ?? s.originalAction
     case "--suffix": s.outputNaming = .suffix; s.outputSuffix = next(a)
     case "--lang": s.language = AppLanguage(rawValue: next(a)) ?? s.language; Lang.forced = s.language
     case "--reset": SettingsStore.save(Settings()); print("Ajustes restablecidos."); exit(0)

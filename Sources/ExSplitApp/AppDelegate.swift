@@ -33,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     }
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        if let dir = ProcessInfo.processInfo.environment["EXSPLIT_SNAPSHOT"] { Snapshot.run(model: model, dir: dir); NSApp.terminate(nil); return }
         Lang.forced = model.s.language
         let defaultLaunch = (n.userInfo?["NSApplicationLaunchIsDefaultLaunchKey"] as? Bool) ?? true
         let loginLaunch = launchedAsLoginItem()
@@ -221,7 +222,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         }
         ans.submenu = ansM; menu.addItem(ans)
         let orig = NSMenuItem(title: tr("Original", "Original"), action: nil, keyEquivalent: ""); let origM = NSMenu()
-        for (v, t) in [(OriginalAction.moveToFolder, tr("Mover a «\(s.originalFolderName)»", "Move to “\(s.originalFolderName)”")),
+        for (v, t) in [(OriginalAction.moveToDocuments, tr("Mover a Documentos/\(s.originalFolderName)", "Move to Documents/\(s.originalFolderName)")),
                        (.trash, tr("Mandar a la Papelera", "Move to Trash")), (.keep, tr("Dejarlo donde está", "Leave in place"))] {
             origM.addItem(ActionItem(t, checked: s.originalAction == v) { [weak self] in self?.model.s.originalAction = v })
         }

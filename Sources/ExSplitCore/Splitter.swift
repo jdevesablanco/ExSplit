@@ -74,7 +74,7 @@ public enum Splitter {
             case .trash:
                 var out: NSURL?
                 try fm.trashItem(at: url, resultingItemURL: &out)
-            case .moveToFolder:
+            case .moveToFolder, .moveToDocuments:
                 originalNow = try moveToOriginalFolder(url, folder: folder, settings: s)
             }
         case .sameAsOriginal:
@@ -97,7 +97,8 @@ public enum Splitter {
 
     static func moveToOriginalFolder(_ url: URL, folder: URL, settings s: Settings) throws -> URL {
         let fm = FileManager.default
-        let od = folder.appendingPathComponent(s.originalFolderName.isEmpty ? "ExSplit" : s.originalFolderName, isDirectory: true)
+        let base = s.originalAction == .moveToDocuments ? (fm.urls(for: .documentDirectory, in: .userDomainMask).first ?? folder) : folder
+        let od = base.appendingPathComponent(s.originalFolderName.isEmpty ? "ExSplit" : s.originalFolderName, isDirectory: true)
         try fm.createDirectory(at: od, withIntermediateDirectories: true)
         let target = uniqueURL(od.appendingPathComponent(url.lastPathComponent))
         try fm.moveItem(at: url, to: target)

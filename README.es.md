@@ -6,9 +6,9 @@
 
 Las hojas de ejercicios suelen meter 3–6 ejercicios por página. En el iPad (Goodnotes, Notability…) o en papel quieres **un ejercicio por hoja, con el contenido original intacto (vectorial, texto seleccionable) y espacio en blanco debajo**. ExSplit localiza dónde empieza cada ejercicio, lo recorta del PDF original y lo coloca en una hoja nueva, uniendo los que se parten entre dos páginas.
 
-- Clic derecho en un PDF → **Acciones rápidas**, **Servicios**, **Abrir con** o (experimental) una opción directa en el menú.
+- Clic derecho en un PDF → **Acciones rápidas**, **Servicios**, **Abrir con** o (recomendada) una opción directa en el menú.
 - Una mini **app de barra de menús** para cambiar el comportamiento, o sin icono: lo eliges en el primer uso.
-- Todo ajustable: texto y posición de la etiqueta (6 sitios), papel, márgenes, zona de respuesta (blanco/rayas/cuadrícula/puntos), qué hacer con el original (subcarpeta (por defecto `ExSplit`, visible), Papelera o dejarlo), nombre del resultado…
+- Todo ajustable: texto y posición de la etiqueta (6 sitios), papel, márgenes, zona de respuesta (blanco/rayas/cuadrícula/puntos), qué hacer con el original (moverlo a `Documentos/ExSplit`, Papelera o dejarlo), nombre del resultado…
 - **Deshacer** la última división con un clic.
 - Funciona con PDFs escaneados (OCR de macOS, en tu Mac).
 - Software libre **sin dependencias**: Swift puro sobre PDFKit / CoreGraphics / Vision (nada de PyMuPDF/AGPL ni Python).
@@ -40,7 +40,7 @@ Sin icono en la barra la app no se queda abierta. Para cambiar ajustes después:
 |---|---|
 | Acciones rápidas / Servicios | Clic derecho en un PDF → *Acciones rápidas* → **Dividir ejercicios con ExSplit** (se instala desde la app) |
 | Abrir con | Clic derecho → *Abrir con* → ExSplit |
-| Opción directa *(experimental)* | Extensión de Finder: **Dividir ejercicios (ExSplit)** en el propio menú; se activa en la app (pestaña Finder) |
+| Opción directa *(recomendada)* | Extensión de Finder: **Dividir ejercicios (ExSplit)** en el propio menú; se activa en la app (pestaña Finder) |
 | Barra de menús | *Dividir PDF…*, ajustes rápidos, *Deshacer última división* |
 | Terminal | `exsplit split archivo.pdf [opciones]` |
 

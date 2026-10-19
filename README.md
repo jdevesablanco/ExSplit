@@ -6,9 +6,9 @@
 
 Handouts usually cram 3–6 exercises on a page. On an iPad (Goodnotes, Notability…) or on paper you want **one exercise per sheet, original content untouched (vector, selectable text), blank space below**. ExSplit finds where each exercise starts, cuts it out of the original PDF and lays it on a fresh sheet, stitching together exercises that run over a page break.
 
-- Right-click a PDF → **Quick Actions**, **Services**, **Open With**, or (experimental) a direct item in the context menu.
+- Right-click a PDF → **Quick Actions**, **Services**, **Open With**, or (recommended) a direct item in the context menu.
 - A tiny **menu bar app** to tweak behaviour, or no icon at all — your choice, asked on first run.
-- Fine-tune everything: label text & position (any of 6 spots), paper, margins, ruled/grid/dotted answer area, what happens to the original (move it to a subfolder (default `ExSplit`, visible), Trash, or leave it), file naming…
+- Fine-tune everything: label text & position (any of 6 spots), paper, margins, ruled/grid/dotted answer area, what happens to the original (move it to `Documents/ExSplit`, Trash, or leave it), file naming…
 - **Undo** the last split with one click.
 - Scanned PDFs work too (macOS Vision OCR, on-device).
 - Free software, **no dependencies**: pure Swift on Apple's PDFKit / CoreGraphics / Vision (no PyMuPDF/AGPL, no Python).
@@ -41,7 +41,7 @@ Without the menu bar icon the app doesn't stay open. To change settings later: o
 |---|---|
 | Quick Actions / Services | Right-click a PDF → *Quick Actions* → **Split exercises with ExSplit** (installed from the app) |
 | Open With | Right-click → *Open With* → ExSplit |
-| Direct menu item *(experimental)* | Finder extension: **Split exercises (ExSplit)** right in the menu; enable it in the app (Finder tab) |
+| Direct menu item *(recommended)* | Finder extension: **Split exercises (ExSplit)** right in the menu; enable it in the app (Finder tab) |
 | Menu bar | *Split PDF…*, quick toggles, *Undo last split* |
 | Terminal | `exsplit split file.pdf [options]` |
 

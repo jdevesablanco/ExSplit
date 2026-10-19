@@ -141,10 +141,9 @@ struct FilesTab: View {
     var body: some View {
         Form {
             Section(tr("¿Qué hago con el PDF original?", "What happens to the original PDF?")) {
-                Picker("", selection: $model.s.originalAction) { ForEach(OriginalAction.allCases) { Text($0.title).tag($0) } }
+                Picker("", selection: $model.s.originalAction) { ForEach(OriginalAction.visibleCases) { Text($0.title).tag($0) } }
                     .pickerStyle(.radioGroup).labelsHidden()
-                if model.s.originalAction == .moveToFolder {
-                    TextField(tr("Nombre de la carpeta", "Folder name"), text: $model.s.originalFolderName)
+                if model.s.originalAction == .moveToFolder || model.s.originalAction == .moveToDocuments {
                     Toggle(tr("Ocultar esa carpeta en Finder", "Hide that folder in Finder"), isOn: $model.s.hideOriginalFolder)
                 }
             }
@@ -168,6 +167,7 @@ struct FilesTab: View {
         var orig = ""
         switch s.originalAction {
         case .moveToFolder: orig = "\(s.originalFolderName)/\(name).pdf"
+        case .moveToDocuments: orig = "~/Documents/\(s.originalFolderName)/\(name).pdf"
         case .trash: orig = tr("Papelera", "Trash")
         case .keep: orig = "\(name).pdf"
         }
@@ -226,7 +226,7 @@ struct IntegrationTab: View {
                 }
                 row(icon: "arrow.up.forward.app", title: tr("Abrir con", "Open With"),
                     text: tr("Clic derecho → Abrir con → ExSplit.", "Right-click → Open With → ExSplit."), status: tr("Siempre disponible", "Always available")) { EmptyView() }
-                row(icon: "contextualmenu.and.cursorarrow", title: tr("Opción directa en el menú (experimental)", "Direct menu item (experimental)"),
+                row(icon: "contextualmenu.and.cursorarrow", title: tr("Opción directa en el menú (recomendado)", "Direct menu item (recommended)"),
                     text: tr("Una entrada «Dividir ejercicios» en el propio menú, sin submenús. Usa una extensión de Finder: macOS te pedirá activarla.", "A “Split exercises” item right in the menu, no submenus. Uses a Finder extension: macOS will ask you to enable it."),
                     status: !Integrations.finderExtensionBundled ? tr("No incluida en esta compilación", "Not included in this build") : (ext ? tr("Activada", "Enabled") : tr("Desactivada", "Disabled"))) {
                     VStack(alignment: .trailing, spacing: 4) {

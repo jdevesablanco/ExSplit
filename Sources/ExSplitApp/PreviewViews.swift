@@ -1,4 +1,5 @@
 import SwiftUI
+import PDFKit
 import ExSplitCore
 
 /// Mini-hoja que refleja en vivo papel, margen, etiqueta y zona de respuesta.
@@ -31,22 +32,40 @@ struct PagePreview: View {
         // área útil (guía muy tenue)
         ctx.stroke(Path(CGRect(x: m, y: m, width: W - 2 * m, height: H - 2 * m)), with: .color(.gray.opacity(0.18)), style: StrokeStyle(lineWidth: 0.5, dash: [2, 2]))
 
-        // «enunciado» simulado
+        // «enunciado»: ejercicio de ejemplo real (mismo espacio que la maqueta anterior)
         var y = m
         let lineH = max(2.2, 3.2 * k * 1.2)
-        let widths: [CGFloat] = [1, 0.97, 0.9, 0.5]
-        for (i, f) in widths.enumerated() {
-            ctx.fill(Path(roundedRect: CGRect(x: m, y: y, width: (W - 2 * m) * f, height: lineH), cornerRadius: 1), with: .color(i == 0 ? ink.opacity(0.9) : ink))
-            y += lineH * 2
-        }
-        y += lineH * 0.5
         let figH = (H - 2 * m) * 0.14
-        ctx.fill(Path(roundedRect: CGRect(x: m + (W - 2 * m) * 0.2, y: y, width: (W - 2 * m) * 0.6, height: figH), cornerRadius: 2), with: .color(.blue.opacity(0.12)))
-        ctx.stroke(Path(roundedRect: CGRect(x: m + (W - 2 * m) * 0.2, y: y, width: (W - 2 * m) * 0.6, height: figH), cornerRadius: 2), with: .color(.blue.opacity(0.3)), lineWidth: 0.6)
-        y += figH + lineH
-        for f: CGFloat in [0.8, 0.7] {
-            ctx.fill(Path(roundedRect: CGRect(x: m, y: y, width: (W - 2 * m) * f, height: lineH), cornerRadius: 1), with: .color(ink))
-            y += lineH * 2
+        let stmtEnd = m + lineH * 8 + lineH * 0.5 + figH + lineH + lineH * 4
+        if let page = SampleExercise.page {
+            let box = page.bounds(for: .mediaBox)
+            let availW = W - 2 * m
+            let sc = availW / box.width
+            let dw = box.width * sc, dh = box.height * sc
+            let ox = m + (availW - dw) / 2
+            ctx.withCGContext { cg in
+                cg.saveGState()
+                cg.translateBy(x: ox - box.minX * sc, y: m + dh + box.minY * sc)
+                cg.scaleBy(x: sc, y: -sc)
+                page.draw(with: .mediaBox, to: cg)
+                cg.restoreGState()
+            }
+            y = m + dh + lineH
+        } else {
+            let widths: [CGFloat] = [1, 0.97, 0.9, 0.5]
+            for (i, f) in widths.enumerated() {
+                ctx.fill(Path(roundedRect: CGRect(x: m, y: y, width: (W - 2 * m) * f, height: lineH), cornerRadius: 1), with: .color(i == 0 ? ink.opacity(0.9) : ink))
+                y += lineH * 2
+            }
+            y += lineH * 0.5
+            let figH = (H - 2 * m) * 0.14
+            ctx.fill(Path(roundedRect: CGRect(x: m + (W - 2 * m) * 0.2, y: y, width: (W - 2 * m) * 0.6, height: figH), cornerRadius: 2), with: .color(.blue.opacity(0.12)))
+            ctx.stroke(Path(roundedRect: CGRect(x: m + (W - 2 * m) * 0.2, y: y, width: (W - 2 * m) * 0.6, height: figH), cornerRadius: 2), with: .color(.blue.opacity(0.3)), lineWidth: 0.6)
+            y += figH + lineH
+            for f: CGFloat in [0.8, 0.7] {
+                ctx.fill(Path(roundedRect: CGRect(x: m, y: y, width: (W - 2 * m) * f, height: lineH), cornerRadius: 1), with: .color(ink))
+                y += lineH * 2
+            }
         }
 
         // zona de respuesta
@@ -91,13 +110,33 @@ struct PagePreview: View {
 /// Selector visual de la posición de la etiqueta (6 puntos sobre una hoja).
 struct PositionPicker: View {
     @Binding var position: LabelPosition
+    var width: CGFloat = 130
+    var enabled: Bool = true
+
+    @StateObject private var seedBox = Local([String: UInt64]())
+
+    private func pick(_ p: LabelPosition) {
+        seedBox.v["\(p)"] = UInt64.random(in: 1...UInt64.max)
+        position = p
+    }
 
     private func dot(_ p: LabelPosition) -> some View {
-        Button { position = p } label: {
-            Circle()
-                .fill(position == p ? Color.accentColor : Color.gray.opacity(0.35))
-                .frame(width: 14, height: 14)
-                .overlay(Circle().stroke(Color.accentColor.opacity(position == p ? 0.4 : 0), lineWidth: 4))
+        let on = position == p
+        let seed = seedBox.v["\(p)"] ?? 1
+        return Button { pick(p) } label: {
+            ZStack {
+                Circle().fill(Color.primary.opacity(0.06)).frame(width: 13, height: 13)
+                    .overlay(Circle().stroke(Color.primary.opacity(0.4), lineWidth: 1.3))
+                PenStroke(first: true, seed: seed).trim(from: 0, to: on ? 1 : 0)
+                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2.6, lineCap: .round, lineJoin: .round))
+                    .animation(.easeOut(duration: 0.14), value: on)
+                PenStroke(first: false, seed: seed).trim(from: 0, to: on ? 1 : 0)
+                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2.6, lineCap: .round, lineJoin: .round))
+                    .animation(.easeOut(duration: 0.16).delay(on ? 0.12 : 0), value: on)
+            }
+            .frame(width: 18, height: 18)
+            .frame(width: 28, height: 28)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .help(p.title)
@@ -109,10 +148,35 @@ struct PositionPicker: View {
             Spacer()
             HStack { dot(.bottomLeft); Spacer(); dot(.bottomCenter); Spacer(); dot(.bottomRight) }
         }
-        .padding(10)
-        .frame(width: 130, height: 92)
-        .background(RoundedRectangle(cornerRadius: 6).fill(Color.white))
-        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.gray.opacity(0.4), lineWidth: 0.7))
-        .shadow(color: .black.opacity(0.12), radius: 2, y: 1)
+        .padding(8)
+        .frame(width: width, height: 92)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.05)))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.primary.opacity(0.10), lineWidth: 0.5))
+        .opacity(enabled ? 1 : 0.4)
+        .disabled(!enabled)
+    }
+}
+
+
+/// Trazo «a mano» de una X: dos líneas curvas y desiguales; cada `seed` da una variante distinta.
+struct PenStroke: Shape {
+    let first: Bool
+    var seed: UInt64 = 1
+    private func r(_ i: UInt64) -> CGFloat {
+        var x = seed &+ (i &+ 1) &* 0x9E3779B97F4A7C15
+        x ^= x >> 30; x = x &* 0xBF58476D1CE4E5B9; x ^= x >> 27; x = x &* 0x94D049BB133111EB; x ^= x >> 31
+        return CGFloat(x % 1000) / 1000 - 0.5   // -0.5 ... 0.5
+    }
+    func path(in rect: CGRect) -> Path {
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: rect.minX + x * rect.width, y: rect.minY + y * rect.height) }
+        var p = Path()
+        if first {   // la larga
+            p.move(to: pt(0.04 + r(0) * 0.08, 0.08 + r(1) * 0.08))
+            p.addQuadCurve(to: pt(0.98 + r(2) * 0.06, 0.96 + r(3) * 0.06), control: pt(0.56 + r(4) * 0.16, 0.38 + r(5) * 0.16))
+        } else {     // la corta
+            p.move(to: pt(0.88 + r(6) * 0.08, 0.16 + r(7) * 0.08))
+            p.addQuadCurve(to: pt(0.22 + r(8) * 0.08, 0.84 + r(9) * 0.08), control: pt(0.50 + r(10) * 0.16, 0.55 + r(11) * 0.16))
+        }
+        return p
     }
 }

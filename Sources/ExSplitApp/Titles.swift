@@ -49,9 +49,12 @@ extension LabelPosition {
     }
 }
 extension OriginalAction {
+    /// La subcarpeta junto al PDF ya no se ofrece en la interfaz (los ajustes antiguos con ella pasan a «Documentos»).
+    static var visibleCases: [OriginalAction] { allCases.filter { $0 != .moveToFolder } }
     var title: String {
         switch self {
         case .moveToFolder: return tr("Moverlo a una subcarpeta nueva", "Move it to a new subfolder")
+        case .moveToDocuments: return tr("Moverlo a Documentos/ExSplit", "Move it to Documents/ExSplit")
         case .trash: return tr("Mandarlo a la Papelera", "Move it to the Trash")
         case .keep: return tr("Dejarlo donde está", "Leave it where it is")
         }
