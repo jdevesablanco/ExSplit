@@ -137,6 +137,10 @@ struct LabelTab: View {
 struct FilesTab: View {
     @ObservedObject var model: SettingsModel
     var effectiveNaming: OutputNaming { model.s.originalAction == .keep ? .suffix : model.s.outputNaming }
+    private var suffixBinding: Binding<String> {
+        Binding(get: { model.s.outputNaming == .suffix ? model.s.outputSuffix : "" },
+                set: { model.s.outputSuffix = $0; model.s.outputNaming = $0.isEmpty ? .sameAsOriginal : .suffix })
+    }
 
     var body: some View {
         Form {
@@ -145,9 +149,7 @@ struct FilesTab: View {
                     .pickerStyle(.radioGroup).labelsHidden()
             }
             Section(tr("Nombre del resultado", "Result name")) {
-                Picker("", selection: $model.s.outputNaming) { ForEach(OutputNaming.allCases) { Text($0.title).tag($0) } }
-                    .pickerStyle(.radioGroup).labelsHidden().disabled(model.s.originalAction == .keep)
-                if effectiveNaming == .suffix { TextField(tr("Sufijo", "Suffix"), text: $model.s.outputSuffix, prompt: Text(Settings().effectiveSuffix)) }
+                TextField(tr("Añadir al nombre (opcional)", "Add to the name (optional)"), text: suffixBinding, prompt: Text(Settings().effectiveSuffix))
                 if model.s.originalAction == .keep {
                     Text(tr("Como el original se queda, el resultado necesita un sufijo para no pisarlo.", "Since the original stays, the result needs a suffix so it doesn't overwrite it."))
                         .font(.caption).foregroundStyle(.secondary)
