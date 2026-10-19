@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key><string>en</string>
+    <key>CFBundleDisplayName</key><string>ExSplit</string>
+    <key>CFBundleName</key><string>ExSplit</string>
+    <key>CFBundleExecutable</key><string>ExSplit</string>
+    <key>CFBundleIdentifier</key><string>@BUNDLE_ID@</string>
+    <key>CFBundleIconFile</key><string>AppIcon</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleShortVersionString</key><string>@VERSION@</string>
+    <key>CFBundleVersion</key><string>@VERSION@</string>
+    <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+    <key>CFBundleLocalizations</key><array><string>en</string><string>es</string></array>
+    <key>LSMinimumSystemVersion</key><string>13.0</string>
+    <key>LSUIElement</key><true/>
+    <key>LSApplicationCategoryType</key><string>public.app-category.productivity</string>
+    <key>NSHighResolutionCapable</key><true/>
+    <key>NSPrincipalClass</key><string>NSApplication</string>
+    <key>NSHumanReadableCopyright</key><string>MIT License</string>
+
+    <!-- «Abrir con» -->
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key><string>PDF Document</string>
+            <key>CFBundleTypeRole</key><string>Viewer</string>
+            <key>LSHandlerRank</key><string>Alternate</string>
+            <key>LSItemContentTypes</key><array><string>com.adobe.pdf</string></array>
+        </dict>
+    </array>
+
+    <!-- exsplit://split?path=…  y  exsplit://settings -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key><string>@BUNDLE_ID@</string>
+            <key>CFBundleURLSchemes</key><array><string>exsplit</string></array>
+        </dict>
+    </array>
+
+    <!-- Menú «Servicios» -->
+    <key>NSServices</key>
+    <array>
+        <dict>
+            <key>NSMenuItem</key><dict><key>default</key><string>Split exercises with ExSplit</string></dict>
+            <key>NSMessage</key><string>splitFiles</string>
+            <key>NSPortName</key><string>ExSplit</string>
+            <key>NSSendFileTypes</key><array><string>com.adobe.pdf</string></array>
+        </dict>
+    </array>
+</dict>
+</plist>

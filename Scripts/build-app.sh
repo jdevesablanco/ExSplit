@@ -1,0 +1,40 @@
+#!/bin/bash
+# Compila ExSplit y monta build/ExSplit.app (con la extensión de Finder y la CLI dentro).
+#   Scripts/build-app.sh                 → firma ad-hoc (gratis, funciona en tu Mac)
+#   SIGN_ID="Developer ID Application: …" Scripts/build-app.sh   → firma con tu certificado (para notarizar)
+#   UNIVERSAL=1 Scripts/build-app.sh     → binario arm64 + x86_64 (necesita Xcode)
+set -euo pipefail
+cd "$(dirname "$0")/.."
+[[ "${EXSPLIT_NO_SANDBOX:-0}" == "1" ]] && SWIFTPM_FLAGS="--disable-sandbox" || true
+
+BUNDLE_ID="${BUNDLE_ID:-io.github.jdevesablanco.ExSplit}"
+VERSION="${VERSION:-1.0.0}"
+SIGN_ID="${SIGN_ID:--}"
+OUT="${OUT:-build}"
+APP="$OUT/ExSplit.app"
+
+ARCHS=()
+if [[ "${UNIVERSAL:-0}" == "1" ]]; then ARCHS=(--arch arm64 --arch x86_64); fi
+swift build -c release ${SWIFTPM_FLAGS:-} ${ARCHS[@]+"${ARCHS[@]}"}
+BIN="$(swift build -c release ${SWIFTPM_FLAGS:-} ${ARCHS[@]+"${ARCHS[@]}"} --show-bin-path)"
+
+rm -rf "$APP"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/PlugIns"
+cp "$BIN/ExSplitApp" "$APP/Contents/MacOS/ExSplit"
+cp "$BIN/exsplit" "$APP/Contents/Resources/exsplit"
+cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp -R Resources/es.lproj Resources/en.lproj "$APP/Contents/Resources/"
+sed -e "s/@BUNDLE_ID@/$BUNDLE_ID/g" -e "s/@VERSION@/$VERSION/g" Resources/Info.plist.template > "$APP/Contents/Info.plist"
+
+EXT="$APP/Contents/PlugIns/ExSplitFinder.appex"
+mkdir -p "$EXT/Contents/MacOS"
+cp "$BIN/ExSplitFinder" "$EXT/Contents/MacOS/ExSplitFinder"
+sed -e "s/@BUNDLE_ID@/$BUNDLE_ID/g" -e "s/@VERSION@/$VERSION/g" Resources/FinderExtension.Info.plist.template > "$EXT/Contents/Info.plist"
+
+OPTS=()
+if [[ "$SIGN_ID" != "-" ]]; then OPTS=(--options runtime --timestamp); fi
+codesign --force --sign "$SIGN_ID" ${OPTS[@]+"${OPTS[@]}"} --entitlements Resources/FinderExtension.entitlements "$EXT"
+codesign --force --sign "$SIGN_ID" ${OPTS[@]+"${OPTS[@]}"} "$APP/Contents/Resources/exsplit"
+codesign --force --sign "$SIGN_ID" ${OPTS[@]+"${OPTS[@]}"} "$APP"
+codesign --verify --deep --strict "$APP" && echo "✓ firma verificada ($([[ "$SIGN_ID" == "-" ]] && echo ad-hoc || echo "$SIGN_ID"))"
+echo "✓ $APP"
