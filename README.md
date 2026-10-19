@@ -22,6 +22,8 @@ brew install jdevesablanco/tap/exsplit
 exsplit install        # copies ExSplit.app to ~/Applications and opens the first-run setup
 ```
 
+**Installer (.pkg)** — no Terminal needed: download `ExSplit-x.y.z.pkg` from [Releases](https://github.com/jdevesablanco/ExSplit/releases), double-click and follow the steps. It installs into *Applications* and opens the first-run setup. The first time macOS may say it can't verify the developer: right-click the file → *Open*, or *System Settings → Privacy & Security → Open Anyway* (not notarized; that needs a paid Apple Developer account).
+
 **DMG**: download `ExSplit-x.y.z.dmg` from [Releases](https://github.com/jdevesablanco/ExSplit/releases), drag the app to *Applications*.
 The app is ad-hoc signed, not notarized by Apple, so the first time: *System Settings → Privacy & Security → Open Anyway*.
 Or skip the dialog: `xattr -dr com.apple.quarantine /Applications/ExSplit.app`.
