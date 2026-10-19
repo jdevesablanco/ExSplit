@@ -86,6 +86,20 @@ enum Integrations {
         try write(plist: info, to: contents.appendingPathComponent("Info.plist"))
         try write(plist: wflow, to: contents.appendingPathComponent("document.wflow"))
         refreshServices()
+        enableQuickActionInFinder()
+    }
+
+    /// macOS ≥ 15 deja las Acciones rápidas nuevas DESACTIVADAS (Ajustes → Extensiones → Finder). Las activamos
+    /// escribiendo la misma entrada que crea el interruptor de Ajustes del Sistema.
+    static func enableQuickActionInFinder() {
+        let title = tr("Dividir ejercicios con ExSplit", "Split exercises with ExSplit")
+        let key = "(null) - \(title) - runWorkflowAsService"
+        let domain = "pbs" as CFString
+        var all = (CFPreferencesCopyAppValue("NSServicesStatus" as CFString, domain) as? [String: Any]) ?? [:]
+        all[key] = ["presentation_modes": ["ContextMenu": 1, "FinderPreview": 1, "ServicesMenu": 1, "TouchBar": 0]]
+        CFPreferencesSetAppValue("NSServicesStatus" as CFString, all as CFDictionary, domain)
+        CFPreferencesAppSynchronize(domain)
+        refreshServices()
     }
 
     static func removeQuickAction() {
