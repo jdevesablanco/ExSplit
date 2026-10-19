@@ -1,5 +1,5 @@
 #!/bin/bash
-# Compila ExSplit y monta build/ExSplit.app (con la extensión de Finder y la CLI dentro).
+# Compila ExSplit y monta build/ExSplit.app (con la CLI dentro).
 #   Scripts/build-app.sh                 → firma ad-hoc (gratis, funciona en tu Mac)
 #   SIGN_ID="Developer ID Application: …" Scripts/build-app.sh   → firma con tu certificado (para notarizar)
 #   UNIVERSAL=1 Scripts/build-app.sh     → binario arm64 + x86_64 (necesita Xcode)
@@ -19,21 +19,15 @@ swift build -c release ${SWIFTPM_FLAGS:-} ${ARCHS[@]+"${ARCHS[@]}"}
 BIN="$(swift build -c release ${SWIFTPM_FLAGS:-} ${ARCHS[@]+"${ARCHS[@]}"} --show-bin-path)"
 
 rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/PlugIns"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN/ExSplitApp" "$APP/Contents/MacOS/ExSplit"
 cp "$BIN/exsplit" "$APP/Contents/Resources/exsplit"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp -R Resources/es.lproj Resources/en.lproj "$APP/Contents/Resources/"
 sed -e "s/@BUNDLE_ID@/$BUNDLE_ID/g" -e "s/@VERSION@/$VERSION/g" Resources/Info.plist.template > "$APP/Contents/Info.plist"
 
-EXT="$APP/Contents/PlugIns/ExSplitFinder.appex"
-mkdir -p "$EXT/Contents/MacOS"
-cp "$BIN/ExSplitFinder" "$EXT/Contents/MacOS/ExSplitFinder"
-sed -e "s/@BUNDLE_ID@/$BUNDLE_ID/g" -e "s/@VERSION@/$VERSION/g" Resources/FinderExtension.Info.plist.template > "$EXT/Contents/Info.plist"
-
 OPTS=()
 if [[ "$SIGN_ID" != "-" ]]; then OPTS=(--options runtime --timestamp); fi
-codesign --force --sign "$SIGN_ID" ${OPTS[@]+"${OPTS[@]}"} --entitlements Resources/FinderExtension.entitlements "$EXT"
 codesign --force --sign "$SIGN_ID" ${OPTS[@]+"${OPTS[@]}"} "$APP/Contents/Resources/exsplit"
 codesign --force --sign "$SIGN_ID" ${OPTS[@]+"${OPTS[@]}"} "$APP"
 codesign --verify --deep --strict "$APP" && echo "✓ firma verificada ($([[ "$SIGN_ID" == "-" ]] && echo ad-hoc || echo "$SIGN_ID"))"

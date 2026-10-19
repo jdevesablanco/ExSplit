@@ -207,10 +207,8 @@ struct DetectionTab: View {
 struct IntegrationTab: View {
     @ObservedObject var model: SettingsModel
     @StateObject private var quickBox = Local(Integrations.quickActionInstalled)
-    @StateObject private var extBox = Local(Integrations.finderExtensionEnabled())
     @StateObject private var errBox = Local<String?>(nil)
     private var quick: Bool { get { quickBox.v } nonmutating set { quickBox.v = newValue } }
-    private var ext: Bool { get { extBox.v } nonmutating set { extBox.v = newValue } }
     private var err: String? { get { errBox.v } nonmutating set { errBox.v = newValue } }
 
     var body: some View {
@@ -226,17 +224,6 @@ struct IntegrationTab: View {
                 }
                 row(icon: "arrow.up.forward.app", title: tr("Abrir con", "Open With"),
                     text: tr("Clic derecho → Abrir con → ExSplit.", "Right-click → Open With → ExSplit."), status: tr("Siempre disponible", "Always available")) { EmptyView() }
-                row(icon: "contextualmenu.and.cursorarrow", title: tr("Opción directa en el menú (recomendado)", "Direct menu item (recommended)"),
-                    text: tr("Una entrada «Dividir ejercicios» en el propio menú, sin submenús. Usa una extensión de Finder: macOS te pedirá activarla.", "A “Split exercises” item right in the menu, no submenus. Uses a Finder extension: macOS will ask you to enable it."),
-                    status: !Integrations.finderExtensionBundled ? tr("No incluida en esta compilación", "Not included in this build") : (ext ? tr("Activada", "Enabled") : tr("Desactivada", "Disabled"))) {
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Button(ext ? tr("Desactivar", "Disable") : tr("Activar", "Enable")) {
-                            if ext { Integrations.disableFinderExtension(); ext = false }
-                            else { Integrations.enableFinderExtension { ok in ext = ok } }
-                        }.disabled(!Integrations.finderExtensionBundled)
-                        Button(tr("Ajustes del Sistema…", "System Settings…")) { Integrations.openExtensionSettings() }.buttonStyle(.link).font(.caption)
-                    }
-                }
             }
             if let err { Text(err).foregroundStyle(.red).font(.caption) }
             Section {
@@ -244,7 +231,7 @@ struct IntegrationTab: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
         }.formStyle(.grouped)
-        .onAppear { quick = Integrations.quickActionInstalled; ext = Integrations.finderExtensionEnabled() }
+        .onAppear { quick = Integrations.quickActionInstalled }
     }
 
     func row<A: View>(icon: String, title: String, text: String, status: String, @ViewBuilder action: () -> A) -> some View {

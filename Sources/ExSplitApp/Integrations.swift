@@ -5,7 +5,6 @@ import ExSplitCore
 /// Todo lo que engancha la app con macOS: Acción rápida, extensión de Finder, inicio de sesión.
 enum Integrations {
     static var bundleID: String { Bundle.main.bundleIdentifier ?? "io.github.jdevesablanco.ExSplit" }
-    static var finderExtensionID: String { bundleID + ".FinderExtension" }
     static var appURL: URL { Bundle.main.bundleURL }
 
     // MARK: Acción rápida (aparece en «Acciones rápidas» y en «Servicios»)
@@ -26,7 +25,7 @@ enum Integrations {
         let info: [String: Any] = [
             "NSServices": [[
                 "NSBackgroundColorName": "background",
-                "NSIconName": "NSActionTemplate",
+                "NSIconName": "ExSplitTemplate",
                 "NSMenuItem": ["default": title],
                 "NSMessage": "runWorkflowAsService",
                 "NSRequiredContext": ["NSApplicationIdentifier": "com.apple.finder"],
@@ -85,6 +84,12 @@ enum Integrations {
         ]
         try write(plist: info, to: contents.appendingPathComponent("Info.plist"))
         try write(plist: wflow, to: contents.appendingPathComponent("document.wflow"))
+        // Icono propio (círculo + símbolo de ExSplit, como el resto de acciones). El sufijo «Template» lo hace icono de plantilla:
+        // macOS lo tiñe igual que los demás en claro y oscuro.
+        let res = contents.appendingPathComponent("Resources", isDirectory: true)
+        try fm.createDirectory(at: res, withIntermediateDirectories: true)
+        try quickActionIcon(size: 64).write(to: res.appendingPathComponent("ExSplitTemplate.png"))
+        try quickActionIcon(size: 128).write(to: res.appendingPathComponent("ExSplitTemplate@2x.png"))
         refreshServices()
         enableQuickActionInFinder()
     }
@@ -102,6 +107,30 @@ enum Integrations {
         refreshServices()
     }
 
+    /// PNG negro sobre transparente: círculo con el símbolo de ExSplit.
+    static func quickActionIcon(size: CGFloat) throws -> Data {
+        let cfg = NSImage.SymbolConfiguration(pointSize: size * 0.42, weight: .regular)
+        guard let sym = NSImage(systemSymbolName: "rectangle.split.1x2", accessibilityDescription: nil)?.withSymbolConfiguration(cfg) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        let img = NSImage(size: NSSize(width: size, height: size))
+        img.lockFocus()
+        let lw = size * 0.075, inset = size * 0.04
+        let ring = NSBezierPath(ovalIn: NSRect(x: lw / 2 + inset, y: lw / 2 + inset, width: size - lw - inset * 2, height: size - lw - inset * 2))
+        ring.lineWidth = lw
+        NSColor.black.setStroke()
+        ring.stroke()
+        let s = sym.size
+        let r = NSRect(x: (size - s.width) / 2, y: (size - s.height) / 2, width: s.width, height: s.height)
+        sym.draw(in: r)
+        NSColor.black.set()
+        r.fill(using: .sourceAtop)
+        img.unlockFocus()
+        guard let tiff = img.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff),
+              let png = rep.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
+        return png
+    }
+
     static func removeQuickAction() {
         try? FileManager.default.removeItem(at: workflowURL)
         refreshServices()
@@ -115,43 +144,6 @@ enum Integrations {
     static func refreshServices() {
         NSUpdateDynamicServices()
         run("/System/Library/CoreServices/pbs", ["-update"])
-    }
-
-    // MARK: Extensión de Finder (opción directa en el menú contextual)
-
-    static var finderExtensionPath: URL { appURL.appendingPathComponent("Contents/PlugIns/ExSplitFinder.appex") }
-    static var finderExtensionBundled: Bool { FileManager.default.fileExists(atPath: finderExtensionPath.path) }
-
-    static func finderExtensionEnabled() -> Bool {
-        let out = run("/usr/bin/pluginkit", ["-m", "-i", finderExtensionID])
-        return out.split(separator: "\n").contains { $0.trimmingCharacters(in: .whitespaces).hasPrefix("+") }
-    }
-
-    /// Registra y activa la extensión (sin reiniciar Finder). Si macOS no la deja activar sola, abre Ajustes del Sistema.
-    static func enableFinderExtension(completion: @escaping (Bool) -> Void) {
-        guard finderExtensionBundled else { completion(false); return }
-        DispatchQueue.global(qos: .userInitiated).async {
-            run("/usr/bin/pluginkit", ["-a", finderExtensionPath.path])
-            Thread.sleep(forTimeInterval: 1.0)   // pluginkit necesita un instante para dar de alta el plug-in
-            run("/usr/bin/pluginkit", ["-e", "use", "-i", finderExtensionID])
-            Thread.sleep(forTimeInterval: 1.0)
-            let ok = finderExtensionEnabled()
-            DispatchQueue.main.async {
-                if !ok { openExtensionSettings() }
-                completion(ok)
-            }
-        }
-    }
-
-    static func disableFinderExtension() {
-        run("/usr/bin/pluginkit", ["-e", "ignore", "-i", finderExtensionID])
-    }
-
-    static func openExtensionSettings() {
-        for u in ["x-apple.systempreferences:com.apple.ExtensionsPreferences?extensionPointIdentifier=com.apple.FinderSync",
-                  "x-apple.systempreferences:com.apple.ExtensionsPreferences"] {
-            if let url = URL(string: u), NSWorkspace.shared.open(url) { return }
-        }
     }
 
     // MARK: inicio de sesión

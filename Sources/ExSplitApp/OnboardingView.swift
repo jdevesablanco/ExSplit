@@ -9,7 +9,6 @@ struct OnboardingView: View {
     let startDone: Bool
     @StateObject private var stepBox: Local<Int>
     @StateObject private var installQuickBox = Local(true)
-    @StateObject private var enableExtBox = Local(Integrations.finderExtensionBundled)
     @StateObject private var manageBox = Local(false)
     @StateObject private var doneBox: Local<Bool>   // pantalla final
     @StateObject private var dirBox = Local(1)   // 1 = avanzando, -1 = retrocediendo (dirección de la transición)
@@ -24,7 +23,6 @@ struct OnboardingView: View {
 
     private var step: Int { get { stepBox.v } nonmutating set { stepBox.v = newValue } }
     private var installQuick: Bool { installQuickBox.v }
-    private var enableExt: Bool { enableExtBox.v }
 
     private func go(_ delta: Int) {
         dirBox.v = delta
@@ -211,14 +209,9 @@ struct OnboardingView: View {
             HStack(alignment: .top, spacing: 10) {
                 FinderChoiceCard(kind: .quickActions,
                                  title: tr("Acciones rápidas (y Servicios)", "Quick Actions (and Services)"),
+                                 badge: tr("Recomendado", "Recommended"),
                                  detail: tr("Clic derecho → Acciones rápidas → «Dividir ejercicios con ExSplit».", "Right-click → Quick Actions → “Split exercises with ExSplit”."),
                                  isOn: $installQuickBox.v)
-                FinderChoiceCard(kind: .direct,
-                                 title: tr("Opción directa en el menú", "Direct menu item"),
-                                 badge: tr("Recomendado", "Recommended"),
-                                 detail: tr("Una entrada «Dividir ejercicios» en el propio menú, sin submenús. Usa una extensión de Finder: puede que macOS te pida activarla en Ajustes del Sistema.", "A “Split exercises” item right in the menu, no submenus. Uses a Finder extension: macOS may ask you to enable it in System Settings."),
-                                 isOn: $enableExtBox.v,
-                                 disabled: !Integrations.finderExtensionBundled)
                 FinderChoiceCard(kind: .openWith,
                                  title: tr("Abrir con", "Open With"),
                                  badge: tr("Siempre disponible", "Always available"),
@@ -234,7 +227,6 @@ struct OnboardingView: View {
 
     func apply() {
         if installQuick { try? Integrations.installQuickAction() }
-        if enableExt { Integrations.enableFinderExtension { _ in } }
         withAnimation(.easeInOut(duration: 0.35)) { doneBox.v = true }
     }
 }
@@ -353,7 +345,7 @@ struct FinderChoiceCard: View {
                     Spacer(minLength: 0)
                 }
                 FinderMenuMock(kind: kind)
-                    .frame(maxWidth: .infinity, minHeight: 150, maxHeight: 150, alignment: .top)
+                    .frame(maxWidth: .infinity, minHeight: 190, maxHeight: 190, alignment: .top)
                 Text(detail).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
             }
@@ -370,7 +362,7 @@ struct FinderChoiceCard: View {
 
 /// Maqueta del menú contextual de Finder sobre un PDF, como se ve en macOS, con la entrada de ExSplit resaltada.
 struct FinderMenuMock: View {
-    enum Kind { case quickActions, direct, openWith }
+    enum Kind { case quickActions, openWith }
     let kind: Kind
 
     private struct Row: Identifiable {
@@ -382,7 +374,7 @@ struct FinderMenuMock: View {
     }
     private let rowH: CGFloat = 17, sepH: CGFloat = 9, pad: CGFloat = 4
     private var menuW: CGFloat { 156 }
-    private var subW: CGFloat { 148 }
+    private var subW: CGFloat { 178 }
     private var overlap: CGFloat { 52 }
 
     private var mainRows: [Row] {
@@ -395,7 +387,6 @@ struct FinderMenuMock: View {
             Row(title: tr("Renombrar", "Rename")),
             Row(title: "", sep: true),
         ]
-        if kind == .direct { r.append(Row(title: tr("Dividir ejercicios (ExSplit)", "Split exercises (ExSplit)"), hl: true)) }
         r.append(Row(title: tr("Acciones rápidas", "Quick Actions"), sub: true, hl: kind == .quickActions))
         r.append(Row(title: tr("Servicios", "Services"), sub: true))
         return r
@@ -413,7 +404,6 @@ struct FinderMenuMock: View {
                     Row(title: "ExSplit", hl: true),
                     Row(title: "Safari"),
                     Row(title: tr("Otra…", "Other…"))]
-        case .direct: return nil
         }
     }
     private func height(_ rows: [Row]) -> CGFloat { rows.reduce(pad * 2) { $0 + ($1.sep ? sepH : rowH) } }
@@ -429,7 +419,7 @@ struct FinderMenuMock: View {
     var body: some View {
         let main = mainRows
         GeometryReader { g in
-            let sc = min(0.85, g.size.width / designW)
+            let sc = min(1.15, g.size.width / designW)
             ZStack(alignment: .topLeading) {
                 panel(main, width: menuW)
                 if let sub = subRows {
