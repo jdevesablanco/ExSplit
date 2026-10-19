@@ -143,9 +143,6 @@ struct FilesTab: View {
             Section(tr("¿Qué hago con el PDF original?", "What happens to the original PDF?")) {
                 Picker("", selection: $model.s.originalAction) { ForEach(OriginalAction.visibleCases) { Text($0.title).tag($0) } }
                     .pickerStyle(.radioGroup).labelsHidden()
-                if model.s.originalAction == .moveToFolder || model.s.originalAction == .moveToDocuments {
-                    Toggle(tr("Ocultar esa carpeta en Finder", "Hide that folder in Finder"), isOn: $model.s.hideOriginalFolder)
-                }
             }
             Section(tr("Nombre del resultado", "Result name")) {
                 Picker("", selection: $model.s.outputNaming) { ForEach(OutputNaming.allCases) { Text($0.title).tag($0) } }

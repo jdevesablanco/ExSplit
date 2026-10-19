@@ -95,7 +95,6 @@ public struct Settings: Codable, Equatable, Sendable {
     public var outputSuffix: String = ""
     public var originalAction: OriginalAction = .moveToDocuments
     public var originalFolderName: String = "ExSplit"
-    public var hideOriginalFolder: Bool = false
     // Comportamiento
     public var askBeforeEachRun: Bool = false
     public var notify: Bool = true
@@ -123,7 +122,7 @@ public struct Settings: Codable, Equatable, Sendable {
         get(.customPattern, &customPattern); get(.ocr, &ocr); get(.ocrLanguages, &ocrLanguages)
         get(.outputNaming, &outputNaming); get(.outputSuffix, &outputSuffix); get(.originalAction, &originalAction)
         if originalAction == .moveToFolder { originalAction = .moveToDocuments }
-        get(.originalFolderName, &originalFolderName); originalFolderName = "ExSplit"; get(.hideOriginalFolder, &hideOriginalFolder)
+        get(.originalFolderName, &originalFolderName); originalFolderName = "ExSplit"
         get(.askBeforeEachRun, &askBeforeEachRun); get(.notify, &notify); get(.revealResult, &revealResult); get(.openResult, &openResult)
         get(.language, &language); get(.showMenuBarIcon, &showMenuBarIcon); get(.launchAtLogin, &launchAtLogin); get(.onboardingDone, &onboardingDone)
     }
@@ -131,7 +130,7 @@ public struct Settings: Codable, Equatable, Sendable {
     enum Keys: String, CodingKey {
         case paper, margin, minScale, answerSpace, labelEnabled, labelTemplate, labelContinuation, labelPosition
         case labelFontSize, labelGray, customPattern, ocr, ocrLanguages, outputNaming, outputSuffix, originalAction
-        case originalFolderName, hideOriginalFolder, askBeforeEachRun, notify, revealResult, openResult
+        case originalFolderName, askBeforeEachRun, notify, revealResult, openResult
         case language, showMenuBarIcon, launchAtLogin, onboardingDone
     }
 }

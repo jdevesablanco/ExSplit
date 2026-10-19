@@ -102,10 +102,6 @@ public enum Splitter {
         try fm.createDirectory(at: od, withIntermediateDirectories: true)
         let target = uniqueURL(od.appendingPathComponent(url.lastPathComponent))
         try fm.moveItem(at: url, to: target)
-        if s.hideOriginalFolder {
-            var v = URLResourceValues(); v.isHidden = true
-            var u = od; try? u.setResourceValues(v)
-        }
         return target
     }
 
