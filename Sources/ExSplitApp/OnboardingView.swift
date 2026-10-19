@@ -177,10 +177,10 @@ struct OnboardingView: View {
                 Label {
                     Text(tr("¿Barra de menús demasiado llena?", "Menu bar getting too crowded?")).font(.callout.bold())
                 } icon: { Image(systemName: "menubar.rectangle").foregroundStyle(Color.accentColor) }
-                Text(tr("Instala también nuestro gestor de barra de menús: ligero, gratis y open source. Deslizas los iconos a «siempre visibles», «ocultos» o «siempre ocultos».",
-                        "Also install our menu bar manager: lightweight, free and open source. Slide icons to “always visible”, “hidden” or “always hidden”."))
+                Text(tr("Instala también SimpleBar, nuestro gestor de barra de menús: ligero, gratis y open source. Deslizas los iconos a «siempre visibles», «ocultos» o «siempre ocultos».",
+                        "Also install SimpleBar, our menu bar manager: lightweight, free and open source. Slide icons to “always visible”, “hidden” or “always hidden”."))
                     .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                Toggle(tr("Instalar el gestor de barra de menús (Próximamente)", "Install the menu bar manager (Coming soon)"), isOn: $manageBox.v)
+                Toggle(tr("Instalar SimpleBar (Próximamente)", "Install SimpleBar (Coming soon)"), isOn: $manageBox.v)
             }
             .padding(10).background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
         }
