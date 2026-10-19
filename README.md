@@ -19,7 +19,7 @@ Handouts usually cram 3–6 exercises on a page. On an iPad (Goodnotes, Notabili
 
 ```bash
 brew install jdevesablanco/tap/exsplit
-exsplit install        # copies ExSplit.app to ~/Applications and opens the first-run setup
+exsplit install        # copies ExSplit.app to /Applications and opens the first-run setup
 ```
 
 **Installer (.pkg)** — no Terminal needed: download `ExSplit-x.y.z.pkg` from [Releases](https://github.com/jdevesablanco/ExSplit/releases), double-click and follow the steps. It installs into *Applications* and opens the first-run setup. The first time macOS may say it can't verify the developer: right-click the file → *Open*, or *System Settings → Privacy & Security → Open Anyway* (not notarized; that needs a paid Apple Developer account).

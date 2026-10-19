@@ -19,7 +19,7 @@ Las hojas de ejercicios suelen meter 3–6 ejercicios por página. En el iPad (G
 
 ```bash
 brew install jdevesablanco/tap/exsplit
-exsplit install        # copia ExSplit.app a ~/Applications y abre la configuración inicial
+exsplit install        # copia ExSplit.app a /Applications y abre la configuración inicial
 ```
 
 **Instalador (.pkg)** — sin Terminal: descarga `ExSplit-x.y.z.pkg` de [Releases](https://github.com/jdevesablanco/ExSplit/releases), doble clic y sigue los pasos. Instala en *Aplicaciones* y abre la configuración inicial. La primera vez macOS puede avisar de que no puede verificar al desarrollador: clic derecho sobre el archivo → *Abrir*, o *Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente* (no está notarizado; requiere una cuenta de Apple Developer de pago).

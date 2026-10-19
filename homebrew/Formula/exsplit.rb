@@ -20,7 +20,7 @@ class Exsplit < Formula
 
   def caveats
     <<~EOS
-      ExSplit.app has been built locally. To copy it to ~/Applications and open it (first-run setup):
+      ExSplit.app has been built locally. To copy it to /Applications and open it (first-run setup):
         exsplit install
       Run `exsplit install` again after each `brew upgrade exsplit`.
     EOS

@@ -11,7 +11,7 @@ USO
   exsplit undo                                  deshace la última división
   exsplit settings [--reset]                    muestra (o restablece) los ajustes
   exsplit selftest                              prueba de humo (genera un PDF sintético y lo divide)
-  exsplit install                               copia ExSplit.app a ~/Applications y la abre
+  exsplit install                               copia ExSplit.app a /Applications y la abre
   exsplit --version
 
 OPCIONES (sobrescriben los ajustes solo en esta ejecución)
@@ -75,14 +75,26 @@ do {
         if !u.path.contains(".app/") { u = URL(fileURLWithPath: ProcessInfo.processInfo.arguments[0]).resolvingSymlinksInPath() }
         guard let r = u.path.range(of: ".app/") else { fail("No encuentro ExSplit.app junto a este ejecutable (¿compilaste solo la CLI?)") }
         let appPath = String(u.path[..<r.lowerBound]) + ".app"
-        let dest = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Applications/ExSplit.app")
-        try FileManager.default.createDirectory(at: dest.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? FileManager.default.removeItem(at: dest)
-        try FileManager.default.copyItem(atPath: appPath, toPath: dest.path)
+        // En /Applications: en macOS 27, Bartender no consigue colocar el icono de la barra de menús de las apps que se
+        // ejecutan desde ~/Applications. Solo si /Applications no se puede escribir se usa ~/Applications.
+        let fm = FileManager.default
+        let userCopy = fm.homeDirectoryForCurrentUser.appendingPathComponent("Applications/ExSplit.app")
+        let dest = fm.isWritableFile(atPath: "/Applications") ? URL(fileURLWithPath: "/Applications/ExSplit.app") : userCopy
+        if dest.path == userCopy.path { print("Aviso: no se puede escribir en /Applications; se instala en ~/Applications (Bartender podría no mostrar el icono).") }
         let lsr = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
-        for (exe, a) in [(lsr, ["-f", dest.path]), ("/usr/bin/open", [dest.path])] {
-            let p = Process(); p.executableURL = URL(fileURLWithPath: exe); p.arguments = a; try p.run(); p.waitUntilExit()
+        func run(_ exe: String, _ a: [String]) throws { let p = Process(); p.executableURL = URL(fileURLWithPath: exe); p.arguments = a; try p.run(); p.waitUntilExit() }
+        if appPath != dest.path {
+            try fm.createDirectory(at: dest.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? fm.removeItem(at: dest)
+            try fm.copyItem(atPath: appPath, toPath: dest.path)
         }
+        // La copia antigua en ~/Applications (instalaciones anteriores) sobra: se quita para que no haya dos.
+        if dest.path != userCopy.path, fm.fileExists(atPath: userCopy.path) {
+            try? run(lsr, ["-u", userCopy.path])
+            try? fm.removeItem(at: userCopy)
+        }
+        try run(lsr, ["-f", dest.path])
+        try run("/usr/bin/open", [dest.path])
         print("ExSplit instalada en \(dest.path)")
     case "settings":
         let e = JSONEncoder(); e.outputFormatting = [.prettyPrinted, .sortedKeys]
