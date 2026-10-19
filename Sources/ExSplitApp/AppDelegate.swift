@@ -185,6 +185,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if model.s.showMenuBarIcon {
             guard statusItem == nil else { return }
             let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+            item.autosaveName = "ExSplitStatusItem"   // identidad estable: la barra (y gestores como Bartender) recuerdan su posición
+            item.isVisible = true
             if let b = item.button {
                 let img = NSImage(systemSymbolName: "rectangle.split.1x2", accessibilityDescription: "ExSplit")
                 img?.isTemplate = true
