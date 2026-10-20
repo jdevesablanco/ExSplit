@@ -1,6 +1,6 @@
 cask "splitexercises" do
   version "1.1.0"
-  sha256 "31b8e265e3688315058b7f0bc75673503de8047b6ff573ca3f69e147d4b584b3"
+  sha256 "b2207eabf0be11aee2357dcfdf6c1296ddf425a56e7b905f265779edeecd7e45"
 
   url "https://github.com/jdevesablanco/SplitExercises/releases/download/v#{version}/SplitExercises-#{version}.dmg"
   name "SplitExercises"
