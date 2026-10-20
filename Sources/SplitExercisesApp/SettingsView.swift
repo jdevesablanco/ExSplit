@@ -208,8 +208,14 @@ struct IntegrationTab: View {
     @ObservedObject var model: SettingsModel
     @StateObject private var quickBox = Local(Integrations.quickActionInstalled)
     @StateObject private var errBox = Local<String?>(nil)
-    @StateObject private var claudeBox = Local(ClaudeSkill.installedInClaudeCode)
-    private var claude: Bool { get { claudeBox.v } nonmutating set { claudeBox.v = newValue } }
+    @StateObject private var claudeBox = Local(ClaudeSetup.status())
+    private var claude: ClaudeStatus { get { claudeBox.v } nonmutating set { claudeBox.v = newValue } }
+    private var claudeStatusText: String {
+        var parts: [String] = []
+        if claude.claudeCode { parts.append("Claude Code") }
+        if claude.desktop { parts.append(tr("app de Claude", "Claude app")) }
+        return parts.isEmpty ? tr("No conectado", "Not connected") : tr("Conectado: ", "Connected: ") + parts.joined(separator: ", ")
+    }
     private var quick: Bool { get { quickBox.v } nonmutating set { quickBox.v = newValue } }
     private var err: String? { get { errBox.v } nonmutating set { errBox.v = newValue } }
 
@@ -229,15 +235,15 @@ struct IntegrationTab: View {
             }
             if let err { Text(err).foregroundStyle(.red).font(.caption) }
             Section(tr("Con Claude", "With Claude")) {
-                row(icon: "sparkles", title: tr("Skill de Claude", "Claude skill"),
-                    text: tr("Enseña a Claude a dividir ejercicios con SplitExercises: «divide los ejercicios de esta carpeta». Se instala en Claude Code; para la app de Claude se sube el .zip una vez.",
-                             "Teaches Claude to split exercises with SplitExercises: “split the exercises in this folder”. Installed in Claude Code; for the Claude app you upload the .zip once."),
-                    status: claude ? tr("Instalado en Claude Code", "Installed in Claude Code") : tr("No instalado", "Not installed")) {
+                row(icon: "sparkles", title: tr("Claude (chat, Cowork y Claude Code)", "Claude (chat, Cowork and Claude Code)"),
+                    text: tr("Pídele «divide los ejercicios de esta carpeta». Claude Code usa un skill; la app de Claude, una herramienta (hay que reiniciarla una vez).",
+                             "Ask “split the exercises in this folder”. Claude Code uses a skill; the Claude app uses a tool (restart it once)."),
+                    status: claudeStatusText) {
                     HStack {
-                        if claude, let zip = Integrations.currentClaudeConnection()?.zip { Button(tr("Mostrar .zip", "Show .zip")) { Integrations.revealSkillZip(zip) } }
-                        Button(claude ? tr("Quitar", "Remove") : tr("Conectar", "Connect")) {
-                            do { if claude { Integrations.disconnectClaude() } else { _ = try Integrations.connectClaude() } } catch { err = error.localizedDescription }
-                            claude = ClaudeSkill.installedInClaudeCode
+                        if claude.desktop && Integrations.claudeRunning { Button(tr("Reiniciar Claude", "Restart Claude")) { Integrations.restartClaude() } }
+                        Button(claude.anyConnected ? tr("Quitar", "Remove") : tr("Conectar", "Connect")) {
+                            if claude.anyConnected { ClaudeSetup.disconnect(); claude = ClaudeSetup.status() }
+                            else { do { claude = try ClaudeSetup.connect(cliPath: Integrations.cliPath); err = claude.desktopError } catch { err = error.localizedDescription } }
                         }
                     }
                 }

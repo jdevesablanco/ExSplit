@@ -23,7 +23,7 @@ struct OnboardingDoneView: View {
             Text(tr("¡Todo configurado!", "All set!"))
                 .font(.system(size: 26, weight: .bold)).padding(.top, 10)
                 .opacity(phase.v >= 3 ? 1 : 0).offset(y: phase.v >= 3 ? 0 : 10)
-            Text(ClaudeSkill.installedInClaudeCode
+            Text(ClaudeSetup.status().anyConnected
                  ? tr("Haz clic derecho sobre un PDF de ejercicios y elige «SplitExercises», o pídeselo a Claude.",
                       "Right-click an exercise PDF and choose “SplitExercises”, or ask Claude.")
                  : tr("Haz clic derecho sobre un PDF de ejercicios y elige «SplitExercises».",

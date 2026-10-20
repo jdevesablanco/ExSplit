@@ -76,13 +76,14 @@ Automatízalo: una regla de [Hazel](https://www.noodlesoft.com/) o una *Acción 
 
 ## Con Claude (y otros asistentes de IA)
 
-SplitExercises incluye un **skill** que le enseña a Claude una sola cosa: ejecutar `splitexercises split` sobre lo que le indiques. El comando aplica los ajustes que elegiste en la app, así que el asistente nunca mueve ni renombra archivos por su cuenta.
+Un botón —en el primer arranque, o en *Ajustes → Finder → Con Claude*— conecta SplitExercises con Claude. Después pídele, por ejemplo: *«divide todos los ejercicios de esta carpeta»*. El comando decide qué PDFs son hojas de ejercicios y aplica **tus** ajustes, así que el asistente nunca mueve ni renombra archivos por su cuenta.
 
-- **Claude Code**: el primer arranque (o *Ajustes → Finder → Con Claude*) instala el skill con un clic en `~/.claude/skills/splitexercises`. O ejecuta `splitexercises install-skill`.
-- **App de Claude (chat / Cowork)**: los skills se suben una vez. Ejecuta `splitexercises install-skill --zip` (o usa el botón de la app), luego *Ajustes → Capacidades → Skills → Subir skill* y elige `SplitExercises-skill.zip`.
-- **Cualquier otro asistente con shell en tu Mac**: dile que use `splitexercises split <archivo o carpeta>` (ver `splitexercises --help`). Los asistentes sin acceso a tu ordenador (chat web a secas) no pueden ejecutarlo.
+- **App de Claude (chat y Cowork)**: el botón registra una herramienta local (un servidor [MCP](https://modelcontextprotocol.io), `splitexercises mcp`) en el `claude_desktop_config.json` de Claude. Reinicia Claude una vez y *split_exercises*, *analyze_exercises* y *undo_last_split* aparecen entre sus herramientas. Se respeta tu configuración existente (se guarda una copia al lado).
+- **Claude Code**: el botón instala un pequeño skill en `~/.claude/skills/splitexercises` que le enseña a ejecutar `splitexercises split`.
+- **Desde Terminal**: `splitexercises connect-claude` hace lo mismo; `splitexercises connect-claude --remove` lo deshace.
+- **Cualquier otro asistente con shell en tu Mac**: dile que use `splitexercises split <archivo o carpeta>` (ver `splitexercises --help`), o apunta un cliente MCP a `splitexercises mcp`. Los asistentes sin acceso a tu ordenador (chat web a secas) no pueden ejecutarlo.
 
-Después pídele, por ejemplo: *«divide todos los ejercicios de esta carpeta»*. Claude lanza el comando; el comando decide qué PDFs son hojas de ejercicios y aplica tus ajustes. Deshaz con `splitexercises undo`.
+Deshaz cualquier cosa con `splitexercises undo` (o *Deshacer última división* en la barra de menús).
 
 ## Cómo funciona
 

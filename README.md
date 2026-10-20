@@ -77,13 +77,14 @@ Automate it: a [Hazel](https://www.noodlesoft.com/) rule or a Finder *Folder Act
 
 ## With Claude (and other AI assistants)
 
-SplitExercises ships a small **skill** that teaches Claude one thing: to run `splitexercises split` on whatever you point it at. The command applies the settings you chose in the app, so the assistant never moves or renames files itself.
+One button — in the first-run setup, or *Settings → Finder → With Claude* — connects SplitExercises with Claude. Then just ask, for example: *“split all the exercises in this folder”*. The command decides which PDFs are exercise sheets and applies **your** settings, so the assistant never moves or renames files itself.
 
-- **Claude Code**: the first-run setup (or *Settings → Finder → With Claude*) installs the skill with one click into `~/.claude/skills/splitexercises`. Or run `splitexercises install-skill`.
-- **Claude app (chat / Cowork)**: skills are uploaded once. Run `splitexercises install-skill --zip` (or use the button in the app), then *Settings → Capabilities → Skills → Upload skill* and pick `SplitExercises-skill.zip`.
-- **Any other assistant with shell access on your Mac**: tell it to use `splitexercises split <file or folder>` (see `splitexercises --help`). Assistants without access to your computer (plain web chat) can't run it.
+- **Claude app (chat and Cowork)**: the button registers a local tool (an [MCP](https://modelcontextprotocol.io) server, `splitexercises mcp`) in Claude's `claude_desktop_config.json`. Restart Claude once and *split_exercises*, *analyze_exercises* and *undo_last_split* show up among its tools. Your existing config is kept (a backup is saved next to it).
+- **Claude Code**: the button installs a small skill in `~/.claude/skills/splitexercises` that teaches it to run `splitexercises split`.
+- **From Terminal**: `splitexercises connect-claude` does the same; `splitexercises connect-claude --remove` undoes it.
+- **Any other assistant with shell access on your Mac**: tell it to use `splitexercises split <file or folder>` (see `splitexercises --help`), or point an MCP client at `splitexercises mcp`. Assistants that can't reach your computer (plain web chat) can't run it.
 
-Then ask, for example: *“split all the exercises in this folder”*. Claude runs the command; the command decides which PDFs are exercise sheets and applies your settings. Undo with `splitexercises undo`.
+Undo anything with `splitexercises undo` (or *Undo last split* in the menu bar).
 
 ## How it works
 

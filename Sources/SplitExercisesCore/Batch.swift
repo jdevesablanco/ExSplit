@@ -27,6 +27,15 @@ public enum Batch {
 
     struct Candidate { let url: URL; let fromFolder: Bool }
 
+    /// Informe JSON (lo usan `--json` de la CLI y el servidor MCP).
+    public static func json(_ entries: [BatchEntry]) -> String {
+        struct Out: Encodable { var results: [BatchEntry]; var summary: [String: Int] }
+        var sum: [String: Int] = [:]
+        for e in entries { sum[e.status.rawValue, default: 0] += 1 }
+        let enc = JSONEncoder(); enc.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        return (try? enc.encode(Out(results: entries, summary: sum))).flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
+    }
+
     static func canonical(_ path: String) -> String { URL(fileURLWithPath: path).resolvingSymlinksInPath().path }
 
     static func expand(_ paths: [String], recursive: Bool) -> [Candidate] {

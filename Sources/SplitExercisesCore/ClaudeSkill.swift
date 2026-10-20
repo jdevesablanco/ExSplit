@@ -1,8 +1,7 @@
 import Foundation
 
 /// Skill de Claude que enseña a usar la CLI de SplitExercises. Fuente única: este texto se instala en Claude Code
-/// (`~/.claude/skills`) y se empaqueta en un .zip para subirlo a la app de Claude. Vive en el binario para que la CLI,
-/// la app y el .zip nunca se desincronicen.
+/// (`~/.claude/skills`). Vive en el binario para que la CLI y la app nunca se desincronicen. (La app de Claude usa el servidor MCP.)
 public enum ClaudeSkill {
     public static let folderName = "splitexercises"
 
@@ -60,11 +59,14 @@ public enum ClaudeSkill {
 
     public static func markdown(cliPath: String) -> String { dedent(template).replacingOccurrences(of: "{{CLI}}", with: cliPath) }
 
-    /// Ruta estable de la CLI para escribirla en el skill: la de /Applications si existe; si no, la que se esté usando.
+    /// Ruta de la CLI para escribirla en el skill y en la config de Claude. Si la que se está usando ya está en una carpeta
+    /// Aplicaciones se respeta; si no (compilada a mano, enlace de brew…) se prefiere la copia instalada en /Applications.
     public static func stableCLIPath(current: String) -> String {
         let fm = FileManager.default
+        let home = fm.homeDirectoryForCurrentUser.path
+        if current.hasPrefix("/Applications/") || current.hasPrefix(home + "/Applications/") { return current }
         let candidates = ["/Applications/SplitExercises.app/Contents/Resources/splitexercises",
-                          fm.homeDirectoryForCurrentUser.appendingPathComponent("Applications/SplitExercises.app/Contents/Resources/splitexercises").path]
+                          home + "/Applications/SplitExercises.app/Contents/Resources/splitexercises"]
         return candidates.first { fm.isExecutableFile(atPath: $0) } ?? current
     }
 
@@ -89,26 +91,5 @@ public enum ClaudeSkill {
 
     public static func uninstallFromClaudeCode() {
         try? FileManager.default.removeItem(at: claudeCodeSkillDir)
-    }
-
-    // MARK: .zip para la app de Claude (Ajustes → Capacidades → Skills → Subir)
-
-    /// Crea `SplitExercises-skill.zip` en `directory` (carpeta `splitexercises/SKILL.md` en la raíz del zip).
-    public static func exportZip(to directory: URL, cliPath: String) throws -> URL {
-        let fm = FileManager.default
-        let stage = fm.temporaryDirectory.appendingPathComponent("splitexercises-skill-\(UUID().uuidString.prefix(6))", isDirectory: true)
-        let inner = stage.appendingPathComponent(folderName, isDirectory: true)
-        try fm.createDirectory(at: inner, withIntermediateDirectories: true)
-        defer { try? fm.removeItem(at: stage) }
-        try markdown(cliPath: cliPath).write(to: inner.appendingPathComponent("SKILL.md"), atomically: true, encoding: .utf8)
-        try fm.createDirectory(at: directory, withIntermediateDirectories: true)
-        let zip = directory.appendingPathComponent("SplitExercises-skill.zip")
-        try? fm.removeItem(at: zip)
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
-        p.arguments = ["-c", "-k", "--keepParent", "--norsrc", "--noextattr", "--noqtn", inner.path, zip.path]
-        try p.run(); p.waitUntilExit()
-        guard p.terminationStatus == 0, fm.fileExists(atPath: zip.path) else { throw CocoaError(.fileWriteUnknown) }
-        return zip
     }
 }

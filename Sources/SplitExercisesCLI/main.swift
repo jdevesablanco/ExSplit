@@ -9,7 +9,8 @@ USO
                                                        En una carpeta solo toca los PDFs que son hojas de ejercicios.
   splitexercises generate <entrada.pdf> <salida.pdf>   solo genera, sin tocar nada más
   splitexercises analyze <archivo.pdf|carpeta>...      cuenta ejercicios sin escribir (en carpetas, indica qué dividiría `split`)
-  splitexercises install-skill [--zip [carpeta]]       instala el skill de Claude (Claude Code) o crea el .zip para la app de Claude
+  splitexercises connect-claude [--remove]             conecta con Claude: skill para Claude Code + herramienta MCP para la app de Claude
+  splitexercises mcp                                   servidor MCP por stdio (lo lanza la app de Claude; no se usa a mano)
   splitexercises undo                                  deshace la última división
   splitexercises settings [--reset]                    muestra (o restablece) los ajustes
   splitexercises selftest                              prueba de humo (genera un PDF sintético y lo divide)
@@ -37,7 +38,7 @@ args.removeFirst()
 var s = SettingsStore.load()
 Lang.forced = s.language
 var files: [String] = []
-var json = false, recursive = false, zipFlag = false, removeFlag = false
+var json = false, recursive = false, removeFlag = false
 var i = 0
 func next(_ flag: String) -> String { i += 1; guard i < args.count else { fail("Falta valor para \(flag)") }; return args[i] }
 while i < args.count {
@@ -58,7 +59,6 @@ while i < args.count {
     case "--reset": SettingsStore.save(Settings()); print("Ajustes restablecidos."); exit(0)
     case "--json": json = true
     case "--recursive", "-r": recursive = true
-    case "--zip": zipFlag = true
     case "--remove": removeFlag = true
     case "--help", "-h": print(usage); exit(0)
     default: files.append(a)
@@ -75,13 +75,7 @@ func line(_ r: SplitReport) {
     }
 }
 
-func emitJSON(_ entries: [BatchEntry]) {
-    struct Out: Encodable { var results: [BatchEntry]; var summary: [String: Int] }
-    var sum: [String: Int] = [:]
-    for e in entries { sum[e.status.rawValue, default: 0] += 1 }
-    let enc = JSONEncoder(); enc.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-    print(String(data: try! enc.encode(Out(results: entries, summary: sum)), encoding: .utf8)!)
-}
+func emitJSON(_ entries: [BatchEntry]) { print(Batch.json(entries)) }
 
 func printHuman(_ e: BatchEntry, multiple: Bool) {
     switch e.status {
@@ -163,18 +157,17 @@ do {
             print("\nDivididos: \(c(.split)) · omitidos: \(c(.skipped)) · con error: \(c(.failed))")
         }
         if res.contains(where: { $0.status == .failed }) { exit(1) }
-    case "install-skill":
+    case "mcp":
+        MCPServer.run()
+    case "connect-claude":
         let exe = Bundle.main.executableURL?.resolvingSymlinksInPath().path ?? CommandLine.arguments[0]
         let cli = ClaudeSkill.stableCLIPath(current: exe)
-        if removeFlag { ClaudeSkill.uninstallFromClaudeCode(); print("Skill retirado de Claude Code."); break }
-        if zipFlag {
-            let dir = URL(fileURLWithPath: ((files.first ?? "~/Downloads") as NSString).expandingTildeInPath, isDirectory: true)
-            let z = try ClaudeSkill.exportZip(to: dir, cliPath: cli)
-            print("Skill empaquetado: \(z.path)\nEn la app de Claude: Ajustes → Capacidades → Skills → Subir skill.")
-        } else {
-            let f = try ClaudeSkill.installForClaudeCode(cliPath: cli)
-            print("Skill instalado para Claude Code: \(f.path)\n(Se aplica en las sesiones nuevas de Claude Code.)")
-        }
+        if removeFlag { ClaudeSetup.disconnect(); print("Claude desconectado (skill de Claude Code y herramienta de la app de Claude)."); break }
+        let st = try ClaudeSetup.connect(cliPath: cli)
+        print("Claude Code: skill instalado en \(ClaudeSkill.claudeCodeSkillDir.path) (sesiones nuevas).")
+        if st.desktop { print("App de Claude: herramienta «splitexercises» registrada en \(ClaudeDesktop.configURL.path). Reinicia Claude (⌘Q y ábrela) para activarla.") }
+        else if let e = st.desktopError { print("App de Claude: \(e)") }
+        else if !st.desktopInstalled { print("App de Claude: no encontrada (omitido).") }
     case "undo":
         let e = try Splitter.undo()
         print("Deshecho: \(e.originalHome) restaurado.")

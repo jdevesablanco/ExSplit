@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import SplitExercisesCore
 
-/// Conexión con Claude: instala el skill que enseña a Claude a usar la CLI de SplitExercises.
+/// Conexión con Claude: skill para Claude Code + herramienta MCP para la app de Claude (chat y Cowork).
 extension Integrations {
     static let claudeDesktopBundleID = "com.anthropic.claudefordesktop"
 
@@ -17,55 +17,28 @@ extension Integrations {
             ?? (FileManager.default.fileExists(atPath: "/Applications/Claude.app") ? URL(fileURLWithPath: "/Applications/Claude.app") : nil)
     }
 
-    struct ClaudeConnection {
-        var claudeCode: Bool
-        var desktopInstalled: Bool
-        var zip: URL?
+    /// Cierra y vuelve a abrir la app de Claude para que cargue la herramienta nueva.
+    static func restartClaude() {
+        NSRunningApplication.runningApplications(withBundleIdentifier: claudeDesktopBundleID).forEach { $0.terminate() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if let u = claudeDesktopURL { NSWorkspace.shared.openApplication(at: u, configuration: NSWorkspace.OpenConfiguration()) }
+        }
     }
-
-    static var zipFolder: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("SplitExercises", isDirectory: true)
-    }
-
-    /// Un clic: deja el skill listo en Claude Code y, si está la app de Claude, prepara el .zip que ésta necesita.
-    static func connectClaude() throws -> ClaudeConnection {
-        try ClaudeSkill.installForClaudeCode(cliPath: cliPath)
-        let desktop = claudeDesktopURL != nil
-        let zip = desktop ? (try? ClaudeSkill.exportZip(to: zipFolder, cliPath: cliPath)) : nil
-        return ClaudeConnection(claudeCode: true, desktopInstalled: desktop, zip: zip)
-    }
-
-    /// Estado al abrir la pantalla: si el skill ya está en Claude Code se muestra como conectado.
-    static func currentClaudeConnection() -> ClaudeConnection? {
-        guard ClaudeSkill.installedInClaudeCode else { return nil }
-        let zip = zipFolder.appendingPathComponent("SplitExercises-skill.zip")
-        return ClaudeConnection(claudeCode: true, desktopInstalled: claudeDesktopURL != nil,
-                                zip: FileManager.default.fileExists(atPath: zip.path) ? zip : nil)
-    }
-
-    static func disconnectClaude() {
-        ClaudeSkill.uninstallFromClaudeCode()
-        try? FileManager.default.removeItem(at: zipFolder.appendingPathComponent("SplitExercises-skill.zip"))
-    }
-
-    static func revealSkillZip(_ zip: URL) {
-        NSWorkspace.shared.activateFileViewerSelecting([zip])
-        if let app = claudeDesktopURL { NSWorkspace.shared.open(app) }
-    }
+    static var claudeRunning: Bool { !NSRunningApplication.runningApplications(withBundleIdentifier: claudeDesktopBundleID).isEmpty }
 }
 
 enum ClaudePhase {
     case idle
-    case done(Integrations.ClaudeConnection)
+    case done(ClaudeStatus)
     case failed(String)
 }
 
 /// Tercera forma de usar SplitExercises: pedírselo a Claude. Un botón la deja lista.
 struct ClaudeConnectCard: View {
-    @StateObject private var phase = Local<ClaudePhase>(Integrations.currentClaudeConnection().map { .done($0) } ?? .idle)
+    @StateObject private var phase = Local<ClaudePhase>({ let st = ClaudeSetup.status(); return st.anyConnected ? .done(st) : .idle }())
 
     private func connect() {
-        do { phase.v = .done(try Integrations.connectClaude()) } catch { phase.v = .failed(error.localizedDescription) }
+        do { phase.v = .done(try ClaudeSetup.connect(cliPath: Integrations.cliPath)) } catch { phase.v = .failed(error.localizedDescription) }
     }
 
     var body: some View {
@@ -81,8 +54,8 @@ struct ClaudeConnectCard: View {
                 Spacer(minLength: 0)
             }
             ClaudeChatMock().frame(maxWidth: .infinity, minHeight: 190, maxHeight: 190, alignment: .top)
-            Text(tr("Pídele «divide los ejercicios de esta carpeta». Claude sabrá qué PDFs son ejercicios y usará tus ajustes.",
-                    "Ask “split the exercises in this folder”. Claude will find the exercise PDFs and use your settings."))
+            Text(tr("En la app de Claude (chat y Cowork) o en Claude Code, pídele «divide los ejercicios de esta carpeta». Usa tus ajustes.",
+                    "In the Claude app (chat and Cowork) or Claude Code, ask “split the exercises in this folder”. It uses your settings."))
                 .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             content
             Spacer(minLength: 0)
@@ -104,14 +77,25 @@ struct ClaudeConnectCard: View {
             Button(tr("Reintentar", "Try again"), action: connect)
         case .done(let c):
             VStack(alignment: .leading, spacing: 6) {
-                Label(tr("Claude Code: listo", "Claude Code: ready"), systemImage: "checkmark.circle.fill")
-                    .font(.caption.weight(.semibold)).foregroundStyle(Color.green)
-                if c.desktopInstalled, let zip = c.zip {
-                    Text(tr("App de Claude: sube el skill una vez (Ajustes → Capacidades → Skills → Subir skill).",
-                            "Claude app: upload the skill once (Settings → Capabilities → Skills → Upload skill)."))
+                if c.claudeCode {
+                    Label(tr("Claude Code: listo", "Claude Code: ready"), systemImage: "checkmark.circle.fill")
+                        .font(.caption.weight(.semibold)).foregroundStyle(Color.green)
+                }
+                if c.desktop {
+                    Label(tr("App de Claude: conectada", "Claude app: connected"), systemImage: "checkmark.circle.fill")
+                        .font(.caption.weight(.semibold)).foregroundStyle(Color.green)
+                    Text(Integrations.claudeRunning
+                         ? tr("Reinicia Claude para que cargue la herramienta.", "Restart Claude so it loads the tool.")
+                         : tr("Se activará la próxima vez que abras Claude.", "It will be active the next time you open Claude."))
                         .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                    Button(tr("Mostrar el .zip y abrir Claude", "Show the .zip and open Claude")) { Integrations.revealSkillZip(zip) }
-                        .controlSize(.small)
+                    if Integrations.claudeRunning {
+                        Button(tr("Reiniciar Claude ahora", "Restart Claude now")) { Integrations.restartClaude() }.controlSize(.small)
+                    }
+                } else if let e = c.desktopError {
+                    Text(e).font(.caption).foregroundStyle(.red).fixedSize(horizontal: false, vertical: true)
+                } else if !c.desktopInstalled {
+                    Text(tr("No encuentro la app de Claude. Si la instalas, vuelve a abrir esta pantalla desde Ajustes.", "I can't find the Claude app. If you install it, connect again from Settings."))
+                        .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
