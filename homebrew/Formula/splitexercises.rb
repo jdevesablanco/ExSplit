@@ -1,7 +1,7 @@
 class Splitexercises < Formula
   desc "Split exercise PDFs into one exercise per sheet (macOS menu bar app + CLI)"
   homepage "https://github.com/jdevesablanco/SplitExercises"
-  url "https://github.com/jdevesablanco/SplitExercises/archive/refs/tags/v1.0.1.tar.gz"
+  url "https://github.com/jdevesablanco/SplitExercises/archive/refs/tags/v1.1.0.tar.gz"
   sha256 "c310e60bb28b87455fe41395d12d74d6cbcff1cae40b77a734c170e0a2a75cb4"
   license "MIT"
   head "https://github.com/jdevesablanco/SplitExercises.git", branch: "main"

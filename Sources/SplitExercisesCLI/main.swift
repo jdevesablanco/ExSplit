@@ -100,7 +100,7 @@ func printHuman(_ e: BatchEntry, multiple: Bool) {
 
 do {
     switch cmd {
-    case "--version", "version": print("splitexercises 1.0.1")
+    case "--version", "version": print("splitexercises 1.1.0")
     case "selftest":
         let r = SelfTest.run(); print(r.log); exit(r.ok ? 0 : 1)
     case "install":
