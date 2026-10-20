@@ -17,29 +17,17 @@ Handouts usually cram 3–6 exercises on a page. On an iPad (Goodnotes, Notabili
 
 ## Install
 
-**Homebrew (recommended)**:
+| Method | Best for | |
+|---|---|---|
+| **[⬇ Installer `.pkg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.pkg)** | Easiest: double-click, no Terminal | Direct download |
+| **[⬇ Disk image `.dmg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.dmg)** | Drag the app to *Applications* | Direct download |
+| **Homebrew** | Terminal users | `brew install --cask jdevesablanco/tap/splitexercises` |
+| **Homebrew (from source)** | No Gatekeeper warning | `brew install jdevesablanco/tap/splitexercises && splitexercises install` |
+| **From source** | Developers | `git clone … && Scripts/build-app.sh` |
 
-```bash
-brew install --cask jdevesablanco/tap/splitexercises
-```
-
-Installs SplitExercises into *Applications* (and the `splitexercises` command). Open it once to run the first-run setup.
-
-**Homebrew, built from source** (compiles locally with the Xcode Command Line Tools — no Gatekeeper warning):
-
-```bash
-brew install jdevesablanco/tap/splitexercises
-splitexercises install        # copies SplitExercises.app to /Applications and opens the first-run setup
-```
-
-**Installer (.pkg)** — no Terminal needed: download `SplitExercises-x.y.z.pkg` from [Releases](https://github.com/jdevesablanco/SplitExercises/releases), double-click and follow the steps. It installs into *Applications* and opens the first-run setup. The first time macOS may say it can't verify the developer: right-click the file → *Open*, or *System Settings → Privacy & Security → Open Anyway* (not notarized; that needs a paid Apple Developer account).
-
-**DMG**: download `SplitExercises-x.y.z.dmg` from [Releases](https://github.com/jdevesablanco/SplitExercises/releases), drag the app to *Applications*.
-The app is ad-hoc signed, not notarized by Apple, so the first time: *System Settings → Privacy & Security → Open Anyway*.
-Or skip the dialog: `xattr -dr com.apple.quarantine /Applications/SplitExercises.app`.
-(Notarizing needs a paid Apple Developer account; see [docs/NOTARIZATION.md](docs/NOTARIZATION.md).)
-
-**From source**: `git clone … && cd SplitExercises && Scripts/build-app.sh && open build/SplitExercises.app`
+Clicking a download link starts the download straight away (latest release). All versions: [Releases](https://github.com/jdevesablanco/SplitExercises/releases).
+The app is ad-hoc signed, not notarized by Apple, so the first time: *System Settings → Privacy & Security → Open Anyway*, or `xattr -dr com.apple.quarantine /Applications/SplitExercises.app` (see [docs/NOTARIZATION.md](docs/NOTARIZATION.md)).
+Open it once to run the first-run setup.
 
 ## First run
 
