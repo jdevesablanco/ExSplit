@@ -41,6 +41,13 @@ Sin icono en la barra la app no se queda abierta. Para cambiar ajustes después:
 |:--:|:--:|:--:|
 | <img src="docs/images/onb-es-1.png" alt="1 · Tu formato"> | <img src="docs/images/onb-es-2.png" alt="2 · Barra de menús"> | <img src="docs/images/onb-es-3.png" alt="3 · Tres formas de usarlo"> |
 
+|  |  |
+|:--:|:--:|
+| <img src="docs/images/menubar-es.png" alt="Menú de la barra de menús"> | <img src="docs/images/run-options-es.png" alt="Opciones de una ejecución (⌥)"> |
+| *Menú de la barra de menús* | *Opciones de una ejecución (⌥)* |
+| <img src="docs/images/settings-format-es.png" alt="Ajustes: formato"> | <img src="docs/images/settings-claude-es.png" alt="Ajustes: Finder y Claude"> |
+| *Ajustes: formato* | *Ajustes: Finder y Claude* |
+
 ## Uso
 
 | Dónde | Cómo |

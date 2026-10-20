@@ -5,18 +5,23 @@ import SplitExercisesCore
 struct SettingsView: View {
     @ObservedObject var model: SettingsModel
     weak var host: AppDelegate?
+    @StateObject private var tab: Local<Int>
+
+    init(model: SettingsModel, host: AppDelegate?, startTab: Int = 0) {
+        self.model = model; self.host = host; _tab = StateObject(wrappedValue: Local(startTab))
+    }
 
     var body: some View {
         HStack(spacing: 0) {
-            TabView {
-                GeneralTab(model: model).tabItem { Label(tr("General", "General"), systemImage: "gearshape") }
-                FormatTab(model: model).tabItem { Label(tr("Formato", "Layout"), systemImage: "doc.richtext") }
-                LabelTab(model: model).tabItem { Label(tr("Etiqueta", "Label"), systemImage: "tag") }
-                FilesTab(model: model).tabItem { Label(tr("Archivos", "Files"), systemImage: "folder") }
-                DetectionTab(model: model).tabItem { Label(tr("Detección", "Detection"), systemImage: "text.magnifyingglass") }
-                IntegrationTab(model: model).tabItem { Label(tr("Finder", "Finder"), systemImage: "cursorarrow.click.2") }
-                PackTab().tabItem { Label(tr("Combina bien con", "Pairs well with"), systemImage: "square.grid.2x2") }
-                AboutTab(model: model).tabItem { Label(tr("Acerca de", "About"), systemImage: "info.circle") }
+            TabView(selection: Binding(get: { tab.v }, set: { tab.v = $0 })) {
+                GeneralTab(model: model).tabItem { Label(tr("General", "General"), systemImage: "gearshape") }.tag(0)
+                FormatTab(model: model).tabItem { Label(tr("Formato", "Layout"), systemImage: "doc.richtext") }.tag(1)
+                LabelTab(model: model).tabItem { Label(tr("Etiqueta", "Label"), systemImage: "tag") }.tag(2)
+                FilesTab(model: model).tabItem { Label(tr("Archivos", "Files"), systemImage: "folder") }.tag(3)
+                DetectionTab(model: model).tabItem { Label(tr("Detección", "Detection"), systemImage: "text.magnifyingglass") }.tag(4)
+                IntegrationTab(model: model).tabItem { Label(tr("Finder", "Finder"), systemImage: "cursorarrow.click.2") }.tag(5)
+                PackTab().tabItem { Label(tr("Combina bien con", "Pairs well with"), systemImage: "square.grid.2x2") }.tag(6)
+                AboutTab(model: model).tabItem { Label(tr("Acerca de", "About"), systemImage: "info.circle") }.tag(7)
             }
             .frame(minWidth: 500)
             Divider()

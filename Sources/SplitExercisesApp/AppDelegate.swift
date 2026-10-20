@@ -280,6 +280,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         let parts = spec.split(separator: ":", maxSplits: 2).map(String.init)
         guard parts.count == 3 else { NSApp.terminate(nil); return }
         let out = parts[2]
+        func publish(_ w: NSWindow) { // dev: el script de capturas lee el número de ventana y usa screencapture -l
+            present(w)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { try? "\(w.windowNumber)".write(toFile: out, atomically: true, encoding: .utf8) }
+        }
+        if parts[0] == "settingswin" { publish(makeWindow(title: tr("SplitExercises — Ajustes", "SplitExercises — Settings"), view: SettingsView(model: model, host: self, startTab: Int(parts[1]) ?? 0))); return }
+        if parts[0] == "runopts" {
+            let v = RunOptionsView(files: [URL(fileURLWithPath: "/tmp/fx/before.pdf")], base: model.s, onRun: { _, _ in }, onCancel: {}, onSettings: {})
+            publish(makeWindow(title: tr("Dividir con SplitExercises", "Split with SplitExercises"), view: v)); return
+        }
+        if parts[0] == "menu" { // abre el menú de la barra; la captura la hace screencapture desde fuera
+            if let scr = NSScreen.main {
+                let bd = NSWindow(contentRect: scr.frame, styleMask: .borderless, backing: .buffered, defer: false)
+                bd.backgroundColor = NSColor(white: 0.2, alpha: 1); bd.level = NSWindow.Level(rawValue: 100); bd.orderFront(nil)
+            }
+            refreshStatusItem()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { self.statusItem?.button?.performClick(nil) }
+            return
+        }
         let w: NSWindow
         switch parts[0] {
         case "onboarding":

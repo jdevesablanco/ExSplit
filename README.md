@@ -41,6 +41,13 @@ Without the menu bar icon the app doesn't stay open. To change settings later: o
 |:--:|:--:|:--:|
 | <img src="docs/images/onb-en-1.png" alt="1 · Your layout"> | <img src="docs/images/onb-en-2.png" alt="2 · Menu bar"> | <img src="docs/images/onb-en-3.png" alt="3 · Three ways to use it"> |
 
+|  |  |
+|:--:|:--:|
+| <img src="docs/images/menubar-en.png" alt="Menu bar menu"> | <img src="docs/images/run-options-en.png" alt="Per-run options (hold ⌥)"> |
+| *Menu bar menu* | *Per-run options (hold ⌥)* |
+| <img src="docs/images/settings-format-en.png" alt="Settings: layout"> | <img src="docs/images/settings-claude-en.png" alt="Settings: Finder & Claude"> |
+| *Settings: layout* | *Settings: Finder & Claude* |
+
 ## Using it
 
 | Where | How |
