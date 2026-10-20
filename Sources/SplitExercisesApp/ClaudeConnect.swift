@@ -27,6 +27,9 @@ extension Integrations {
     static var claudeRunning: Bool { !NSRunningApplication.runningApplications(withBundleIdentifier: claudeDesktopBundleID).isEmpty }
 }
 
+/// Naranja de Claude.
+let claudeOrange = Color(red: 0.851, green: 0.467, blue: 0.341)
+
 enum ClaudePhase {
     case idle
     case done(ClaudeStatus)
@@ -44,12 +47,13 @@ struct ClaudeConnectCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 8) {
-                Image(systemName: "sparkles").font(.system(size: 17)).foregroundStyle(Color.accentColor)
+                Image(systemName: connected ? "checkmark.square.fill" : "square")
+                    .font(.system(size: 17)).foregroundStyle(connected ? claudeOrange : Color.secondary)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(tr("Con Claude", "With Claude")).font(.system(size: 13, weight: .semibold))
-                    Text(tr("Nuevo", "New")).font(.system(size: 10, weight: .semibold))
+                    Text(connected ? tr("Instalado", "Installed") : tr("Nuevo", "New")).font(.system(size: 10, weight: .semibold))
                         .padding(.horizontal, 7).padding(.vertical, 2)
-                        .background(Capsule().fill(Color.accentColor.opacity(0.85))).foregroundStyle(Color.white)
+                        .background(Capsule().fill(claudeOrange.opacity(connected ? 1 : 0.85))).foregroundStyle(Color.white)
                 }
                 Spacer(minLength: 0)
             }
@@ -62,28 +66,31 @@ struct ClaudeConnectCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.accentColor.opacity(0.10)))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.accentColor.opacity(0.8), lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(claudeOrange.opacity(connected ? 0.16 : 0.06)))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .stroke(claudeOrange.opacity(connected ? 1 : 0.7), style: StrokeStyle(lineWidth: connected ? 2 : 1.2, dash: connected ? [] : [5, 4])))
     }
+
+    private var connected: Bool { if case .done = phase.v { return true } else { return false } }
 
     @ViewBuilder private var content: some View {
         switch phase.v {
         case .idle:
             Button(action: connect) {
-                Label(tr("Conectar con Claude", "Connect to Claude"), systemImage: "link").frame(maxWidth: .infinity)
-            }.buttonStyle(.borderedProminent).controlSize(.regular)
+                Label(tr("Instalar para Claude", "Install for Claude"), systemImage: "arrow.down.circle.fill").frame(maxWidth: .infinity)
+            }.buttonStyle(.borderedProminent).tint(claudeOrange).controlSize(.regular)
         case .failed(let msg):
             Text(msg).font(.caption).foregroundStyle(.red).fixedSize(horizontal: false, vertical: true)
-            Button(tr("Reintentar", "Try again"), action: connect)
+            Button(tr("Reintentar", "Try again"), action: connect).tint(claudeOrange)
         case .done(let c):
             VStack(alignment: .leading, spacing: 6) {
                 if c.claudeCode {
                     Label(tr("Claude Code: listo", "Claude Code: ready"), systemImage: "checkmark.circle.fill")
-                        .font(.caption.weight(.semibold)).foregroundStyle(Color.green)
+                        .font(.caption.weight(.semibold)).foregroundStyle(claudeOrange)
                 }
                 if c.desktop {
                     Label(tr("App de Claude: conectada", "Claude app: connected"), systemImage: "checkmark.circle.fill")
-                        .font(.caption.weight(.semibold)).foregroundStyle(Color.green)
+                        .font(.caption.weight(.semibold)).foregroundStyle(claudeOrange)
                     Text(Integrations.claudeRunning
                          ? tr("Reinicia Claude para que cargue la herramienta.", "Restart Claude so it loads the tool.")
                          : tr("Se activará la próxima vez que abras Claude.", "It will be active the next time you open Claude."))
@@ -110,7 +117,7 @@ struct ClaudeChatMock: View {
                 Spacer(minLength: 24)
                 Text(tr("Divide los ejercicios de esta carpeta", "Split the exercises in this folder"))
                     .font(.system(size: 10)).padding(.horizontal, 9).padding(.vertical, 6)
-                    .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.accentColor.opacity(0.28)))
+                    .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(claudeOrange.opacity(0.35)))
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text("$ splitexercises split ~/Tema3").font(.system(size: 9, design: .monospaced)).foregroundStyle(.secondary)

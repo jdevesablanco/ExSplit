@@ -59,14 +59,14 @@ public enum ClaudeSkill {
 
     public static func markdown(cliPath: String) -> String { dedent(template).replacingOccurrences(of: "{{CLI}}", with: cliPath) }
 
-    /// Ruta de la CLI para escribirla en el skill y en la config de Claude. Si la que se está usando ya está en una carpeta
-    /// Aplicaciones se respeta; si no (compilada a mano, enlace de brew…) se prefiere la copia instalada en /Applications.
+    /// Ruta de la CLI para escribirla en el skill y en la config de Claude. Si la que se está usando está dentro de una app
+    /// (`….app/Contents/Resources/splitexercises`) se respeta: es la versión que acaba de arrancar y que sabe todo lo nuevo.
+    /// Si no (CLI suelta, enlace de brew…) se prefiere la copia instalada en /Applications.
     public static func stableCLIPath(current: String) -> String {
+        if current.contains(".app/Contents/Resources/") { return current }
         let fm = FileManager.default
-        let home = fm.homeDirectoryForCurrentUser.path
-        if current.hasPrefix("/Applications/") || current.hasPrefix(home + "/Applications/") { return current }
         let candidates = ["/Applications/SplitExercises.app/Contents/Resources/splitexercises",
-                          home + "/Applications/SplitExercises.app/Contents/Resources/splitexercises"]
+                          fm.homeDirectoryForCurrentUser.path + "/Applications/SplitExercises.app/Contents/Resources/splitexercises"]
         return candidates.first { fm.isExecutableFile(atPath: $0) } ?? current
     }
 

@@ -241,7 +241,7 @@ struct IntegrationTab: View {
                     status: claudeStatusText) {
                     HStack {
                         if claude.desktop && Integrations.claudeRunning { Button(tr("Reiniciar Claude", "Restart Claude")) { Integrations.restartClaude() } }
-                        Button(claude.anyConnected ? tr("Quitar", "Remove") : tr("Conectar", "Connect")) {
+                        Button(claude.anyConnected ? tr("Quitar", "Remove") : tr("Instalar", "Install")) {
                             if claude.anyConnected { ClaudeSetup.disconnect(); claude = ClaudeSetup.status() }
                             else { do { claude = try ClaudeSetup.connect(cliPath: Integrations.cliPath); err = claude.desktopError } catch { err = error.localizedDescription } }
                         }
