@@ -208,6 +208,8 @@ struct IntegrationTab: View {
     @ObservedObject var model: SettingsModel
     @StateObject private var quickBox = Local(Integrations.quickActionInstalled)
     @StateObject private var errBox = Local<String?>(nil)
+    @StateObject private var claudeBox = Local(ClaudeSkill.installedInClaudeCode)
+    private var claude: Bool { get { claudeBox.v } nonmutating set { claudeBox.v = newValue } }
     private var quick: Bool { get { quickBox.v } nonmutating set { quickBox.v = newValue } }
     private var err: String? { get { errBox.v } nonmutating set { errBox.v = newValue } }
 
@@ -226,6 +228,20 @@ struct IntegrationTab: View {
                     text: tr("Clic derecho → Abrir con → SplitExercises.", "Right-click → Open With → SplitExercises."), status: tr("Siempre disponible", "Always available")) { EmptyView() }
             }
             if let err { Text(err).foregroundStyle(.red).font(.caption) }
+            Section(tr("Con Claude", "With Claude")) {
+                row(icon: "sparkles", title: tr("Skill de Claude", "Claude skill"),
+                    text: tr("Enseña a Claude a dividir ejercicios con SplitExercises: «divide los ejercicios de esta carpeta». Se instala en Claude Code; para la app de Claude se sube el .zip una vez.",
+                             "Teaches Claude to split exercises with SplitExercises: “split the exercises in this folder”. Installed in Claude Code; for the Claude app you upload the .zip once."),
+                    status: claude ? tr("Instalado en Claude Code", "Installed in Claude Code") : tr("No instalado", "Not installed")) {
+                    HStack {
+                        if claude, let zip = Integrations.currentClaudeConnection()?.zip { Button(tr("Mostrar .zip", "Show .zip")) { Integrations.revealSkillZip(zip) } }
+                        Button(claude ? tr("Quitar", "Remove") : tr("Conectar", "Connect")) {
+                            do { if claude { Integrations.disconnectClaude() } else { _ = try Integrations.connectClaude() } } catch { err = error.localizedDescription }
+                            claude = ClaudeSkill.installedInClaudeCode
+                        }
+                    }
+                }
+            }
             Section {
                 Text(tr("Truco: mantén ⌥ (Option) al elegir cualquiera de estas opciones para decidir los ajustes solo esa vez.", "Tip: hold ⌥ (Option) when you pick any of these to choose settings just that once."))
                     .font(.caption).foregroundStyle(.secondary)

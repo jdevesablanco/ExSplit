@@ -23,8 +23,11 @@ struct OnboardingDoneView: View {
             Text(tr("¡Todo configurado!", "All set!"))
                 .font(.system(size: 26, weight: .bold)).padding(.top, 10)
                 .opacity(phase.v >= 3 ? 1 : 0).offset(y: phase.v >= 3 ? 0 : 10)
-            Text(tr("Haz clic derecho sobre un PDF de ejercicios y elige «SplitExercises».",
-                    "Right-click an exercise PDF and choose “SplitExercises”."))
+            Text(ClaudeSkill.installedInClaudeCode
+                 ? tr("Haz clic derecho sobre un PDF de ejercicios y elige «SplitExercises», o pídeselo a Claude.",
+                      "Right-click an exercise PDF and choose “SplitExercises”, or ask Claude.")
+                 : tr("Haz clic derecho sobre un PDF de ejercicios y elige «SplitExercises».",
+                      "Right-click an exercise PDF and choose “SplitExercises”."))
                 .font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 .padding(.top, 4).padding(.horizontal, 70)
                 .opacity(phase.v >= 3 ? 1 : 0).offset(y: phase.v >= 3 ? 0 : 10)
@@ -39,7 +42,7 @@ struct OnboardingDoneView: View {
                     .keyboardShortcut(.defaultAction)
             }.padding(16)
         }
-        .frame(width: 700, height: 600)
+        .frame(width: 820, height: 600)
         .background(Color(nsColor: .windowBackgroundColor))
         .onAppear { if startPhase == 0 { run() } }
     }

@@ -35,6 +35,18 @@ public enum SelfTest {
             try Splitter.undo(o.historyID)
             guard fm.fileExists(atPath: work.path) else { return (false, log + "FALLO: deshacer no restauró el original") }
             log += "dividir + original + deshacer: OK\n"
+            // carpetas: divide la hoja de ejercicios, y al repetir no vuelve a dividir su propio resultado
+            let folder = dir.appendingPathComponent("carpeta", isDirectory: true)
+            try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+            try fm.copyItem(at: src, to: folder.appendingPathComponent("tema1.pdf"))
+            var s3 = s; s3.originalAction = .keep
+            let first = Batch.split([folder.path], recursive: false, settings: s3)
+            guard first.filter({ $0.status == .split }).count == 1 else { return (false, log + "FALLO: la carpeta no se dividió") }
+            let again = Batch.split([folder.path], recursive: false, settings: s3)
+            let splitAgain = again.filter { $0.status == .split }.count
+            try? Splitter.undo()
+            guard splitAgain == 0 else { return (false, log + "FALLO: volvió a dividir un resultado") }
+            log += "carpeta: divide una vez y no repite: OK\n"
             return (true, log + "OK")
         } catch {
             return (false, log + "FALLO: \(error.localizedDescription)")

@@ -51,6 +51,7 @@ Sin icono en la barra la app no se queda abierta. Para cambiar ajustes después:
 | Acciones rápidas / Servicios *(recomendada)* | Clic derecho en un PDF → *Acciones rápidas* → **SplitExercises** (se instala desde la app) |
 | Abrir con | Clic derecho → *Abrir con* → SplitExercises |
 | Barra de menús | *Dividir PDF…*, ajustes rápidos, *Deshacer última división* |
+| Claude / asistentes de IA | Pídele *«divide los ejercicios de esta carpeta»* — ver [Con Claude](#con-claude-y-otros-asistentes-de-ia) |
 | Terminal | `splitexercises split archivo.pdf [opciones]` |
 
 Mantén **⌥** en cualquiera de ellas para elegir opciones solo esa vez.
@@ -59,14 +60,29 @@ Mantén **⌥** en cualquiera de ellas para elegir opciones solo esa vez.
 
 ```bash
 splitexercises split ejercicios.pdf                 # con tus ajustes guardados
+splitexercises split ~/Documents/Curso/Tema3        # una carpeta entera: solo toca los PDFs que son hojas de ejercicios
+splitexercises split ~/Documents/Curso -r           # …incluyendo subcarpetas
 splitexercises split *.pdf --original keep --suffix " (separado)" --answer grid
 splitexercises generate in.pdf out.pdf --label "Problema {n}" --label-pos topRight --paper letter
 splitexercises analyze ejercicios.pdf               # solo cuenta ejercicios
+splitexercises analyze ~/Documents/Curso --json     # qué procesaría `split`, legible por máquinas
 splitexercises undo                                 # deshace la última división
 splitexercises selftest                             # prueba de humo del motor (PDF sintético)
 ```
 
+En una carpeta, `split` se salta los PDFs sin ejercicios reconocibles (menos de 2), los resultados de divisiones anteriores y la carpeta de originales, y sigue si un archivo falla. `--json` imprime un informe legible por máquinas (`split`, `skipped`, `failed`).
+
 Automatízalo: una regla de [Hazel](https://www.noodlesoft.com/) o una *Acción de carpeta* de Finder que ejecute `splitexercises split "$1"` con los PDFs nuevos.
+
+## Con Claude (y otros asistentes de IA)
+
+SplitExercises incluye un **skill** que le enseña a Claude una sola cosa: ejecutar `splitexercises split` sobre lo que le indiques. El comando aplica los ajustes que elegiste en la app, así que el asistente nunca mueve ni renombra archivos por su cuenta.
+
+- **Claude Code**: el primer arranque (o *Ajustes → Finder → Con Claude*) instala el skill con un clic en `~/.claude/skills/splitexercises`. O ejecuta `splitexercises install-skill`.
+- **App de Claude (chat / Cowork)**: los skills se suben una vez. Ejecuta `splitexercises install-skill --zip` (o usa el botón de la app), luego *Ajustes → Capacidades → Skills → Subir skill* y elige `SplitExercises-skill.zip`.
+- **Cualquier otro asistente con shell en tu Mac**: dile que use `splitexercises split <archivo o carpeta>` (ver `splitexercises --help`). Los asistentes sin acceso a tu ordenador (chat web a secas) no pueden ejecutarlo.
+
+Después pídele, por ejemplo: *«divide todos los ejercicios de esta carpeta»*. Claude lanza el comando; el comando decide qué PDFs son hojas de ejercicios y aplica tus ajustes. Deshaz con `splitexercises undo`.
 
 ## Cómo funciona
 

@@ -84,7 +84,7 @@ struct OnboardingView: View {
                 }
             }.padding(16)
         }
-        .frame(width: 700, height: 600)
+        .frame(width: 820, height: 600)
         .overlay {
             if doneBox.v { OnboardingDoneView(finish: finish, startPhase: startDone ? 3 : 0).transition(.opacity) }
         }
@@ -167,8 +167,8 @@ struct OnboardingView: View {
                     "SplitExercises can live in the menu bar: from there you tweak the essentials and undo the last split in one click. No Dock icon, and it uses almost nothing."))
                 .fixedSize(horizontal: false, vertical: true)
             Label {
-                Text(tr("Cómo se usa: clic derecho en un PDF → Acciones rápidas → «SplitExercises» (también en Servicios y Abrir con). El resultado aparece en la misma carpeta.",
-                        "How you use it: right-click a PDF → Quick Actions → “SplitExercises” (also under Services and Open With). The result appears in the same folder."))
+                Text(tr("Cómo se usa: clic derecho en un PDF → Acciones rápidas → «SplitExercises» (también en Servicios y Abrir con), o pídeselo a Claude. El resultado aparece en la misma carpeta.",
+                        "How you use it: right-click a PDF → Quick Actions → “SplitExercises” (also under Services and Open With), or ask Claude. The result appears in the same folder."))
                     .font(.callout).fixedSize(horizontal: false, vertical: true)
             } icon: { Image(systemName: "cursorarrow.click.2").foregroundStyle(Color.accentColor) }
             Toggle(tr("Abrir al iniciar sesión", "Open at login"), isOn: $model.s.launchAtLogin)
@@ -193,8 +193,8 @@ struct OnboardingView: View {
     // 3
     var stepFinder: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(tr("Úsalo con clic derecho", "Use it with a right-click")).font(.title2.bold())
-            Text(tr("Haz clic derecho sobre cualquier PDF. Elige dónde quieres encontrar SplitExercises:", "Right-click any PDF. Choose where you want to find SplitExercises:"))
+            Text(tr("Tres formas de usarlo", "Three ways to use it")).font(.title2.bold())
+            Text(tr("Todas usan los mismos ajustes. Elige las que quieras:", "They all use the same settings. Pick the ones you want:"))
             HStack(alignment: .top, spacing: 10) {
                 FinderChoiceCard(kind: .quickActions,
                                  title: tr("Acciones rápidas (y Servicios)", "Quick Actions (and Services)"),
@@ -206,6 +206,7 @@ struct OnboardingView: View {
                                  badge: tr("Siempre disponible", "Always available"),
                                  detail: tr("Clic derecho → Abrir con → SplitExercises. No cambia tu lector de PDF por defecto.", "Right-click → Open With → SplitExercises. Doesn't change your default PDF viewer."),
                                  isOn: .constant(true), locked: true)
+                ClaudeConnectCard()
             }
             .frame(maxHeight: .infinity)
             Text(tr("La primera vez, macOS puede pedir permiso para acceder a tus carpetas (Documentos, Escritorio…): es normal, los PDFs solo se procesan en tu Mac.", "The first time, macOS may ask permission to access your folders (Documents, Desktop…): that's normal; PDFs are only processed on your Mac."))
