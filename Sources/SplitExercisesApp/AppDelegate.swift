@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     let toast = ToastController()
     let services = ServiceProvider()
     var statusItem: NSStatusItem?
+    var backdropWindow: NSWindow?   // dev: fondo limpio para capturas
     var settingsWindow: NSWindow?
     var onboardingWindow: NSWindow?
     var runWindow: NSWindow?
@@ -289,13 +290,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
             let v = RunOptionsView(files: [URL(fileURLWithPath: "/tmp/fx/before.pdf")], base: model.s, onRun: { _, _ in }, onCancel: {}, onSettings: {})
             publish(makeWindow(title: tr("Dividir con SplitExercises", "Split with SplitExercises"), view: v)); return
         }
-        if parts[0] == "menu" { // abre el menú de la barra; la captura la hace screencapture desde fuera
-            if let scr = NSScreen.main {
-                let bd = NSWindow(contentRect: scr.frame, styleMask: .borderless, backing: .buffered, defer: false)
-                bd.backgroundColor = NSColor(white: 0.2, alpha: 1); bd.level = NSWindow.Level(rawValue: 100); bd.orderFront(nil)
-            }
+        if parts[0] == "menu" { // maqueta limpia de la barra + el menú real; la captura la hace screencapture desde fuera
+            guard let scr = NSScreen.main else { return }
+            let bd = NSWindow(contentRect: scr.frame, styleMask: .borderless, backing: .buffered, defer: false)
+            bd.level = NSWindow.Level(rawValue: 100)
+            bd.contentView = NSHostingView(rootView: VStack(spacing: 0) {
+                Color.clear.frame(height: 40)
+                ZStack(alignment: .leading) {
+                    Color(white: 0.07)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 6).fill(Color.white.opacity(0.22)).frame(width: 32, height: 22)
+                        Image(systemName: "rectangle.split.1x2").font(.system(size: 14)).foregroundColor(.white)
+                    }.padding(.leading, 200)
+                }.frame(height: 24)
+                Spacer()
+            }.background(Color(white: 0.13)))
+            NSApp.setActivationPolicy(.regular); NSApp.activate(ignoringOtherApps: true)
+            bd.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            backdropWindow = bd
+            bd.orderFrontRegardless()
             refreshStatusItem()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { self.statusItem?.button?.performClick(nil) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                guard let m = self.statusItem?.menu else { return }
+                m.popUp(positioning: nil, at: NSPoint(x: 200, y: scr.frame.maxY - 64), in: nil)
+            }
             return
         }
         let w: NSWindow
