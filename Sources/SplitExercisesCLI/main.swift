@@ -1,18 +1,18 @@
 import Foundation
-import ExSplitCore
+import SplitExercisesCore
 
 let usage = """
-exsplit — divide un PDF de ejercicios en una hoja por ejercicio.
+splitexercises — divide un PDF de ejercicios en una hoja por ejercicio.
 
 USO
-  exsplit split <archivo.pdf>... [opciones]     divide aplicando tus ajustes (original → Documentos/ExSplit, etc.)
-  exsplit generate <entrada.pdf> <salida.pdf>   solo genera, sin tocar nada más
-  exsplit analyze <archivo.pdf>                 cuenta ejercicios sin escribir
-  exsplit undo                                  deshace la última división
-  exsplit settings [--reset]                    muestra (o restablece) los ajustes
-  exsplit selftest                              prueba de humo (genera un PDF sintético y lo divide)
-  exsplit install                               copia ExSplit.app a /Applications y la abre
-  exsplit --version
+  splitexercises split <archivo.pdf>... [opciones]     divide aplicando tus ajustes (original → Documentos/SplitExercises, etc.)
+  splitexercises generate <entrada.pdf> <salida.pdf>   solo genera, sin tocar nada más
+  splitexercises analyze <archivo.pdf>                 cuenta ejercicios sin escribir
+  splitexercises undo                                  deshace la última división
+  splitexercises settings [--reset]                    muestra (o restablece) los ajustes
+  splitexercises selftest                              prueba de humo (genera un PDF sintético y lo divide)
+  splitexercises install                               copia SplitExercises.app a /Applications y la abre
+  splitexercises --version
 
 OPCIONES (sobrescriben los ajustes solo en esta ejecución)
   --paper a4|letter|a5|same     --margin PT          --min-scale 0.85
@@ -66,20 +66,20 @@ func line(_ r: SplitReport) {
 
 do {
     switch cmd {
-    case "--version", "version": print("exsplit 1.0.0")
+    case "--version", "version": print("splitexercises 1.0.0")
     case "selftest":
         let r = SelfTest.run(); print(r.log); exit(r.ok ? 0 : 1)
     case "install":
-        // El ejecutable real vive dentro de ExSplit.app/Contents/Resources/exsplit (brew enlaza a él).
+        // El ejecutable real vive dentro de SplitExercises.app/Contents/Resources/splitexercises (brew enlaza a él).
         var u = URL(fileURLWithPath: CommandLine.arguments[0]).resolvingSymlinksInPath()
         if !u.path.contains(".app/") { u = URL(fileURLWithPath: ProcessInfo.processInfo.arguments[0]).resolvingSymlinksInPath() }
-        guard let r = u.path.range(of: ".app/") else { fail("No encuentro ExSplit.app junto a este ejecutable (¿compilaste solo la CLI?)") }
+        guard let r = u.path.range(of: ".app/") else { fail("No encuentro SplitExercises.app junto a este ejecutable (¿compilaste solo la CLI?)") }
         let appPath = String(u.path[..<r.lowerBound]) + ".app"
         // En /Applications: en macOS 27, Bartender no consigue colocar el icono de la barra de menús de las apps que se
         // ejecutan desde ~/Applications. Solo si /Applications no se puede escribir se usa ~/Applications.
         let fm = FileManager.default
-        let userCopy = fm.homeDirectoryForCurrentUser.appendingPathComponent("Applications/ExSplit.app")
-        let dest = fm.isWritableFile(atPath: "/Applications") ? URL(fileURLWithPath: "/Applications/ExSplit.app") : userCopy
+        let userCopy = fm.homeDirectoryForCurrentUser.appendingPathComponent("Applications/SplitExercises.app")
+        let dest = fm.isWritableFile(atPath: "/Applications") ? URL(fileURLWithPath: "/Applications/SplitExercises.app") : userCopy
         if dest.path == userCopy.path { print("Aviso: no se puede escribir en /Applications; se instala en ~/Applications (Bartender podría no mostrar el icono).") }
         let lsr = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
         func run(_ exe: String, _ a: [String]) throws { let p = Process(); p.executableURL = URL(fileURLWithPath: exe); p.arguments = a; try p.run(); p.waitUntilExit() }
@@ -95,7 +95,7 @@ do {
         }
         try run(lsr, ["-f", dest.path])
         try run("/usr/bin/open", [dest.path])
-        print("ExSplit instalada en \(dest.path)")
+        print("SplitExercises instalada en \(dest.path)")
     case "settings":
         let e = JSONEncoder(); e.outputFormatting = [.prettyPrinted, .sortedKeys]
         print(String(data: try e.encode(s), encoding: .utf8)!)

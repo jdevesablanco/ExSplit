@@ -32,10 +32,10 @@ enum Renderer {
         let gap = 8.0
 
         var mediaBox = CGRect(x: 0, y: 0, width: W, height: H)
-        var info: [String: Any] = [kCGPDFContextCreator as String: "ExSplit"]
+        var info: [String: Any] = [kCGPDFContextCreator as String: "SplitExercises"]
         if let t = doc.title { info[kCGPDFContextTitle as String] = t }
         guard let ctx = CGContext(url as CFURL, mediaBox: &mediaBox, info as CFDictionary) else {
-            throw ExSplitError.writeFailed(url.path)
+            throw SplitExercisesError.writeFailed(url.path)
         }
 
         var outPages = 0
@@ -105,7 +105,7 @@ enum Renderer {
         }
         if outPages > 0 { ctx.endPDFPage() }
         ctx.closePDF()
-        if outPages == 0 { throw ExSplitError.emptyResult }
+        if outPages == 0 { throw SplitExercisesError.emptyResult }
         return SplitReport(pattern: plan.patternName, usedOCR: doc.usedOCR, sourcePages: doc.pages.count, outputPages: outPages, rows: rows)
     }
 

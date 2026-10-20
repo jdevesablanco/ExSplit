@@ -1,25 +1,25 @@
 import AppKit
 import ServiceManagement
-import ExSplitCore
+import SplitExercisesCore
 
 /// Todo lo que engancha la app con macOS: Acción rápida, extensión de Finder, inicio de sesión.
 enum Integrations {
-    static var bundleID: String { Bundle.main.bundleIdentifier ?? "io.github.jdevesablanco.ExSplit" }
+    static var bundleID: String { Bundle.main.bundleIdentifier ?? "io.github.jdevesablanco.SplitExercises" }
     static var appURL: URL { Bundle.main.bundleURL }
 
     // MARK: Acción rápida (aparece en «Acciones rápidas» y en «Servicios»)
 
     static var workflowURL: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Services/\(tr("Dividir ejercicios con ExSplit", "Split exercises with ExSplit")).workflow", isDirectory: true)
+            .appendingPathComponent("Library/Services/\(tr("SplitExercises", "SplitExercises")).workflow", isDirectory: true)
     }
     static var quickActionInstalled: Bool {
         FileManager.default.fileExists(atPath: workflowURL.path) || (rightYourClickInstalled && FileManager.default.fileExists(atPath: rycActionURL.path))
     }
 
     // MARK: RightYourClick (menú de clic derecho compartido del pack)
-    // Si está instalada, ExSplit no crea su propia Acción rápida: declara la acción en el registro de RightYourClick,
-    // que genera y mantiene la Acción rápida (y la lista en su selector). Si no, ExSplit sigue con la suya.
+    // Si está instalada, SplitExercises no crea su propia Acción rápida: declara la acción en el registro de RightYourClick,
+    // que genera y mantiene la Acción rápida (y la lista en su selector). Si no, SplitExercises sigue con la suya.
 
     static let rycBundleID = "com.jdevesablanco.rightyourclick"
     static var rightYourClickInstalled: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: rycBundleID) != nil }
@@ -32,13 +32,13 @@ enum Integrations {
         let spec: [String: Any] = [
             "schema": 1,
             "id": "\(bundleID).split",
-            "title": ["en": "Split exercises with ExSplit", "es": "Dividir ejercicios con ExSplit"],
+            "title": ["en": "SplitExercises", "es": "SplitExercises"],
             "symbol": "rectangle.split.1x2",
             "fileTypes": ["com.adobe.pdf"],
             "bundleID": bundleID,
-            "owner": "ExSplit",
+            "owner": "SplitExercises",
             // nuestra Acción rápida propia: RightYourClick la retira para que no salga dos veces
-            "replaces": ["Split exercises with ExSplit", "Dividir ejercicios con ExSplit"],
+            "replaces": ["Split exercises with ExSplit", "Dividir ejercicios con ExSplit", "Split exercises with SplitExercises", "Dividir ejercicios con SplitExercises"],
         ]
         try FileManager.default.createDirectory(at: rycActionURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         let d = try JSONSerialization.data(withJSONObject: spec, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
@@ -56,6 +56,23 @@ enum Integrations {
         }
     }
 
+    /// Versiones anteriores llamaban a la acción «Dividir ejercicios con …». Si queda alguna, se retira y se reinstala con el nombre actual.
+    static func migrateLegacyQuickAction() {
+        let fm = FileManager.default
+        let dir = fm.homeDirectoryForCurrentUser.appendingPathComponent("Library/Services", isDirectory: true)
+        let legacy = ["Dividir ejercicios con SplitExercises", "Split exercises with SplitExercises",
+                      "Dividir ejercicios con ExSplit", "Split exercises with ExSplit"]
+        var found = false
+        for name in legacy {
+            let u = dir.appendingPathComponent("\(name).workflow", isDirectory: true)
+            if fm.fileExists(atPath: u.path) { try? fm.removeItem(at: u); found = true }
+        }
+        if found || (fm.fileExists(atPath: rycActionURL.path) && ((try? String(contentsOf: rycActionURL, encoding: .utf8))?.contains("Dividir ejercicios con") ?? false)) {
+            try? installQuickAction()
+            refreshServices()
+        }
+    }
+
     static func installQuickAction() throws {
         // Siempre se declara en el registro (si RightYourClick llega después, la recoge sola).
         try? registerWithRightYourClick()
@@ -64,12 +81,12 @@ enum Integrations {
         let contents = workflowURL.appendingPathComponent("Contents", isDirectory: true)
         try? fm.removeItem(at: workflowURL)
         try fm.createDirectory(at: contents, withIntermediateDirectories: true)
-        let title = tr("Dividir ejercicios con ExSplit", "Split exercises with ExSplit")
+        let title = tr("SplitExercises", "SplitExercises")
 
         let info: [String: Any] = [
             "NSServices": [[
                 "NSBackgroundColorName": "background",
-                "NSIconName": "ExSplitTemplate",
+                "NSIconName": "SplitExercisesTemplate",
                 "NSMenuItem": ["default": title],
                 "NSMessage": "runWorkflowAsService",
                 "NSRequiredContext": ["NSApplicationIdentifier": "com.apple.finder"],
@@ -128,12 +145,12 @@ enum Integrations {
         ]
         try write(plist: info, to: contents.appendingPathComponent("Info.plist"))
         try write(plist: wflow, to: contents.appendingPathComponent("document.wflow"))
-        // Icono propio (círculo + símbolo de ExSplit, como el resto de acciones). El sufijo «Template» lo hace icono de plantilla:
+        // Icono propio (círculo + símbolo de SplitExercises, como el resto de acciones). El sufijo «Template» lo hace icono de plantilla:
         // macOS lo tiñe igual que los demás en claro y oscuro.
         let res = contents.appendingPathComponent("Resources", isDirectory: true)
         try fm.createDirectory(at: res, withIntermediateDirectories: true)
-        try quickActionIcon(size: 64).write(to: res.appendingPathComponent("ExSplitTemplate.png"))
-        try quickActionIcon(size: 128).write(to: res.appendingPathComponent("ExSplitTemplate@2x.png"))
+        try quickActionIcon(size: 64).write(to: res.appendingPathComponent("SplitExercisesTemplate.png"))
+        try quickActionIcon(size: 128).write(to: res.appendingPathComponent("SplitExercisesTemplate@2x.png"))
         refreshServices()
         enableQuickActionInFinder()
     }
@@ -141,7 +158,7 @@ enum Integrations {
     /// macOS ≥ 15 deja las Acciones rápidas nuevas DESACTIVADAS (Ajustes → Extensiones → Finder). Las activamos
     /// escribiendo la misma entrada que crea el interruptor de Ajustes del Sistema.
     static func enableQuickActionInFinder() {
-        let title = tr("Dividir ejercicios con ExSplit", "Split exercises with ExSplit")
+        let title = tr("SplitExercises", "SplitExercises")
         let key = "(null) - \(title) - runWorkflowAsService"
         let domain = "pbs" as CFString
         var all = (CFPreferencesCopyAppValue("NSServicesStatus" as CFString, domain) as? [String: Any]) ?? [:]
@@ -151,7 +168,7 @@ enum Integrations {
         refreshServices()
     }
 
-    /// PNG negro sobre transparente: círculo con el símbolo de ExSplit.
+    /// PNG negro sobre transparente: círculo con el símbolo de SplitExercises.
     static func quickActionIcon(size: CGFloat) throws -> Data {
         let cfg = NSImage.SymbolConfiguration(pointSize: size * 0.42, weight: .regular)
         guard let sym = NSImage(systemSymbolName: "rectangle.split.1x2", accessibilityDescription: nil)?.withSymbolConfiguration(cfg) else {

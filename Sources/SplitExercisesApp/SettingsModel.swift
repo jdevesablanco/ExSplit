@@ -1,5 +1,5 @@
 import Foundation
-import ExSplitCore
+import SplitExercisesCore
 
 /// Ajustes observables: cada cambio se guarda en disco al instante.
 final class SettingsModel: ObservableObject {

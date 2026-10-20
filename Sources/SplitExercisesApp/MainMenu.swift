@@ -1,5 +1,5 @@
 import AppKit
-import ExSplitCore
+import SplitExercisesCore
 
 enum MainMenu {
     static func build(target: AppDelegate) -> NSMenu {
@@ -15,13 +15,13 @@ enum MainMenu {
             let m = NSMenu(title: title); item.submenu = m
             return m
         }
-        let app = container("ExSplit")
-        add(app, tr("Acerca de ExSplit", "About ExSplit"), #selector(AppDelegate.showAbout), target: target)
+        let app = container("SplitExercises")
+        add(app, tr("Acerca de SplitExercises", "About SplitExercises"), #selector(AppDelegate.showAbout), target: target)
         app.addItem(.separator())
         add(app, tr("Ajustes…", "Settings…"), #selector(AppDelegate.showSettingsAction), ",", target: target)
         app.addItem(.separator())
-        add(app, tr("Ocultar ExSplit", "Hide ExSplit"), #selector(NSApplication.hide(_:)), "h")
-        add(app, tr("Salir de ExSplit", "Quit ExSplit"), #selector(NSApplication.terminate(_:)), "q")
+        add(app, tr("Ocultar SplitExercises", "Hide SplitExercises"), #selector(NSApplication.hide(_:)), "h")
+        add(app, tr("Salir de SplitExercises", "Quit SplitExercises"), #selector(NSApplication.terminate(_:)), "q")
 
         let edit = container(tr("Edición", "Edit"))
         add(edit, tr("Deshacer", "Undo"), Selector(("undo:")), "z")

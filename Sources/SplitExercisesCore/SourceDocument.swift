@@ -93,8 +93,8 @@ final class SourceDocument {
 
     init(url: URL, ocr: OCRMode, languages: [String]) throws {
         self.url = url
-        guard let pk = PDFDocument(url: url), pk.pageCount > 0 else { throw ExSplitError.cannotOpen(url.lastPathComponent) }
-        if pk.isLocked { throw ExSplitError.encrypted(url.lastPathComponent) }
+        guard let pk = PDFDocument(url: url), pk.pageCount > 0 else { throw SplitExercisesError.cannotOpen(url.lastPathComponent) }
+        if pk.isLocked { throw SplitExercisesError.encrypted(url.lastPathComponent) }
         title = pk.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String
 
         var workPK = pk
@@ -105,7 +105,7 @@ final class SourceDocument {
         } else if let c = CGPDFDocument(url as CFURL) {
             workCG = c
         } else {
-            throw ExSplitError.cannotOpen(url.lastPathComponent)
+            throw SplitExercisesError.cannotOpen(url.lastPathComponent)
         }
         self.cg = workCG
 
@@ -130,7 +130,7 @@ final class SourceDocument {
             let ink = SourceDocument.makeInk(cgp, size: size)
             pages.append(PageInfo(index: i, size: size, lines: lines.sorted(by: SourceDocument.readingOrder), ink: ink))
         }
-        if pages.isEmpty { throw ExSplitError.cannotOpen(url.lastPathComponent) }
+        if pages.isEmpty { throw SplitExercisesError.cannotOpen(url.lastPathComponent) }
     }
 
     static func readingOrder(_ a: TextLine, _ b: TextLine) -> Bool {

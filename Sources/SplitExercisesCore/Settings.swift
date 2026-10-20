@@ -94,7 +94,7 @@ public struct Settings: Codable, Equatable, Sendable {
     /// Vacío = sufijo por defecto del idioma.
     public var outputSuffix: String = ""
     public var originalAction: OriginalAction = .moveToDocuments
-    public var originalFolderName: String = "ExSplit"
+    public var originalFolderName: String = "SplitExercises"
     // Comportamiento
     public var askBeforeEachRun: Bool = false
     public var notify: Bool = true
@@ -122,7 +122,7 @@ public struct Settings: Codable, Equatable, Sendable {
         get(.customPattern, &customPattern); get(.ocr, &ocr); get(.ocrLanguages, &ocrLanguages)
         get(.outputNaming, &outputNaming); get(.outputSuffix, &outputSuffix); get(.originalAction, &originalAction)
         if originalAction == .moveToFolder { originalAction = .moveToDocuments }
-        get(.originalFolderName, &originalFolderName); originalFolderName = "ExSplit"
+        get(.originalFolderName, &originalFolderName); originalFolderName = "SplitExercises"
         get(.askBeforeEachRun, &askBeforeEachRun); get(.notify, &notify); get(.revealResult, &revealResult); get(.openResult, &openResult)
         get(.language, &language); get(.showMenuBarIcon, &showMenuBarIcon); get(.launchAtLogin, &launchAtLogin); get(.onboardingDone, &onboardingDone)
     }
@@ -139,10 +139,10 @@ public struct Settings: Codable, Equatable, Sendable {
 
 public enum SettingsStore {
     public static var directory: URL {
-        // EXSPLIT_CONFIG_DIR permite aislar los ajustes (pruebas, CI, instalaciones portátiles).
-        if let d = ProcessInfo.processInfo.environment["EXSPLIT_CONFIG_DIR"], !d.isEmpty { return URL(fileURLWithPath: d, isDirectory: true) }
+        // SPLITEXERCISES_CONFIG_DIR permite aislar los ajustes (pruebas, CI, instalaciones portátiles).
+        if let d = ProcessInfo.processInfo.environment["SPLITEXERCISES_CONFIG_DIR"], !d.isEmpty { return URL(fileURLWithPath: d, isDirectory: true) }
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return base.appendingPathComponent("ExSplit", isDirectory: true)
+        return base.appendingPathComponent("SplitExercises", isDirectory: true)
     }
     public static var fileURL: URL { directory.appendingPathComponent("settings.json") }
 

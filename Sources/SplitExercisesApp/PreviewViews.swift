@@ -1,6 +1,6 @@
 import SwiftUI
 import PDFKit
-import ExSplitCore
+import SplitExercisesCore
 
 /// Mini-hoja que refleja en vivo papel, margen, etiqueta y zona de respuesta.
 struct PagePreview: View {

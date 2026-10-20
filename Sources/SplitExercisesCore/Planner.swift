@@ -26,7 +26,7 @@ enum Planner {
         if !custom.isEmpty { cands = [("personalizado", custom, 0.5)] }
         var best: ([Marker], String) = ([], "")
         for (name, rx, xfrac) in cands {
-            guard let re = try? NSRegularExpression(pattern: rx, options: [.caseInsensitive]) else { throw ExSplitError.invalidPattern(rx) }
+            guard let re = try? NSRegularExpression(pattern: rx, options: [.caseInsensitive]) else { throw SplitExercisesError.invalidPattern(rx) }
             var marks: [Marker] = []
             for p in doc.pages {
                 for l in p.lines {
@@ -105,10 +105,10 @@ enum Planner {
 
     static func make(_ doc: SourceDocument, settings: Settings) throws -> Plan {
         let (marks0, pname) = try findMarkers(doc, custom: settings.customPattern)
-        guard !marks0.isEmpty else { throw ExSplitError.noMarkers(doc.url.lastPathComponent) }
+        guard !marks0.isEmpty else { throw SplitExercisesError.noMarkers(doc.url.lastPathComponent) }
         let (top, bot) = detectFrame(doc)
         let pad = 4.0
-        if ProcessInfo.processInfo.environment["EXSPLIT_DEBUG"] != nil { FileHandle.standardError.write(Data("frame top=\(top) bot=\(bot) pages=\(doc.pages.count) size=\(doc.pages[0].size)\n".utf8)) }
+        if ProcessInfo.processInfo.environment["SPLITEXERCISES_DEBUG"] != nil { FileHandle.standardError.write(Data("frame top=\(top) bot=\(bot) pages=\(doc.pages.count) size=\(doc.pages[0].size)\n".utf8)) }
         let marks = marks0.map { m -> Marker in
             // corte unos puntos por encima del marcador, pero nunca a través de la última línea del ejercicio anterior
             let ink = doc.pages[m.page].ink

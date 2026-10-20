@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import ExSplitCore
+import SplitExercisesCore
 
 struct SettingsView: View {
     @ObservedObject var model: SettingsModel
@@ -223,7 +223,7 @@ struct IntegrationTab: View {
                     }
                 }
                 row(icon: "arrow.up.forward.app", title: tr("Abrir con", "Open With"),
-                    text: tr("Clic derecho → Abrir con → ExSplit.", "Right-click → Open With → ExSplit."), status: tr("Siempre disponible", "Always available")) { EmptyView() }
+                    text: tr("Clic derecho → Abrir con → SplitExercises.", "Right-click → Open With → SplitExercises."), status: tr("Siempre disponible", "Always available")) { EmptyView() }
             }
             if let err { Text(err).foregroundStyle(.red).font(.caption) }
             Section {
@@ -267,7 +267,7 @@ struct AboutTab: View {
                 HStack(spacing: 14) {
                     Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 56, height: 56)
                     VStack(alignment: .leading) {
-                        Text("ExSplit").font(.title3.bold())
+                        Text("SplitExercises").font(.title3.bold())
                         Text(tr("Versión", "Version") + " \(AppInfo.version) · " + tr("Software libre, licencia MIT", "Free software, MIT licence")).font(.caption).foregroundStyle(.secondary)
                     }
                 }

@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import CoreServices
 import UniformTypeIdentifiers
-import ExSplitCore
+import SplitExercisesCore
 
 final class ActionItem: NSMenuItem {
     var handler: (() -> Void)?
@@ -33,8 +33,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     }
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        Integrations.migrateLegacyQuickAction()
         PackCatalog.isSpanish = { tr("es", "en") == "es" }
-        if let dir = ProcessInfo.processInfo.environment["EXSPLIT_SNAPSHOT"] { Snapshot.run(model: model, dir: dir); NSApp.terminate(nil); return }
+        if let dir = ProcessInfo.processInfo.environment["SPLITEXERCISES_SNAPSHOT"] { Snapshot.run(model: model, dir: dir); NSApp.terminate(nil); return }
         Lang.forced = model.s.language
         let defaultLaunch = (n.userInfo?["NSApplicationLaunchIsDefaultLaunchKey"] as? Bool) ?? true
         let loginLaunch = launchedAsLoginItem()
@@ -81,7 +82,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     func handle(_ urls: [URL]) {
         var pdfs: [URL] = []
         for u in urls {
-            if u.scheme == "exsplit" { handleScheme(u); continue }
+            if u.scheme == "splitexercises" { handleScheme(u); continue }
             guard u.isFileURL else { continue }
             var isDir: ObjCBool = false
             if FileManager.default.fileExists(atPath: u.path, isDirectory: &isDir), isDir.boolValue {
@@ -186,13 +187,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if model.s.showMenuBarIcon {
             guard statusItem == nil else { return }
             let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-            item.autosaveName = "ExSplitStatusItem"   // identidad estable: la barra (y gestores como Bartender) recuerdan su posición
+            item.autosaveName = "SplitExercisesStatusItem"   // identidad estable: la barra (y gestores como Bartender) recuerdan su posición
             item.isVisible = true
             if let b = item.button {
-                let img = NSImage(systemSymbolName: "rectangle.split.1x2", accessibilityDescription: "ExSplit")
+                let img = NSImage(systemSymbolName: "rectangle.split.1x2", accessibilityDescription: "SplitExercises")
                 img?.isTemplate = true
                 b.image = img
-                b.toolTip = "ExSplit"
+                b.toolTip = "SplitExercises"
             }
             let menu = NSMenu()
             menu.delegate = self
@@ -207,7 +208,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
         let s = model.s
-        let head = NSMenuItem(title: "ExSplit", action: nil, keyEquivalent: ""); head.isEnabled = false
+        let head = NSMenuItem(title: "SplitExercises", action: nil, keyEquivalent: ""); head.isEnabled = false
         menu.addItem(head)
         menu.addItem(ActionItem(tr("Dividir PDF…", "Split PDF…"), key: "o") { [weak self] in self?.chooseFiles() })
         let hist = History.load()
@@ -236,16 +237,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         menu.addItem(ActionItem(tr("Abrir al iniciar sesión", "Open at login"), checked: s.launchAtLogin) { [weak self] in self?.model.s.launchAtLogin.toggle() })
         menu.addItem(ActionItem(tr("Ocultar icono de la barra de menús…", "Hide menu bar icon…")) { [weak self] in self?.confirmHideIcon() })
         menu.addItem(.separator())
-        menu.addItem(ActionItem(tr("Acerca de ExSplit", "About ExSplit")) { [weak self] in self?.showAbout() })
-        let q = NSMenuItem(title: tr("Salir de ExSplit", "Quit ExSplit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(ActionItem(tr("Acerca de SplitExercises", "About SplitExercises")) { [weak self] in self?.showAbout() })
+        let q = NSMenuItem(title: tr("Salir de SplitExercises", "Quit SplitExercises"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(q)
     }
 
     func confirmHideIcon() {
         let a = NSAlert()
         a.messageText = tr("¿Ocultar el icono de la barra de menús?", "Hide the menu bar icon?")
-        a.informativeText = tr("ExSplit seguirá funcionando desde el clic derecho en un PDF. Para cambiar ajustes, abre la app desde Spotlight o Launchpad, o mantén ⌥ (Option) al lanzar la acción.",
-                               "ExSplit keeps working from the right-click menu on a PDF. To change settings, open the app from Spotlight or Launchpad, or hold ⌥ (Option) when you run the action.")
+        a.informativeText = tr("SplitExercises seguirá funcionando desde el clic derecho en un PDF. Para cambiar ajustes, abre la app desde Spotlight o Launchpad, o mantén ⌥ (Option) al lanzar la acción.",
+                               "SplitExercises keeps working from the right-click menu on a PDF. To change settings, open the app from Spotlight or Launchpad, or hold ⌥ (Option) when you run the action.")
         a.addButton(withTitle: tr("Ocultar icono", "Hide icon"))
         a.addButton(withTitle: tr("Cancelar", "Cancel"))
         NSApp.activate(ignoringOtherApps: true)
@@ -267,7 +268,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
 
     func showSettings() {
         if settingsWindow == nil {
-            let w = makeWindow(title: tr("ExSplit — Ajustes", "ExSplit — Settings"), view: SettingsView(model: model, host: self))
+            let w = makeWindow(title: tr("SplitExercises — Ajustes", "SplitExercises — Settings"), view: SettingsView(model: model, host: self))
             settingsWindow = w
         }
         present(settingsWindow!)
@@ -276,7 +277,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     func showOnboarding() {
         if onboardingWindow == nil {
             let v = OnboardingView(model: model) { [weak self] in self?.finishOnboarding() }
-            onboardingWindow = makeWindow(title: tr("Bienvenido a ExSplit", "Welcome to ExSplit"), view: v)
+            onboardingWindow = makeWindow(title: tr("Bienvenido a SplitExercises", "Welcome to SplitExercises"), view: v)
         }
         present(onboardingWindow!)
     }
@@ -288,7 +289,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if !urls.isEmpty { run(urls, settings: model.s) }
         else if !model.s.showMenuBarIcon {
             toast.show(.success, title: tr("Todo listo", "All set"),
-                       detail: tr("Clic derecho en un PDF → Acciones rápidas → «Dividir ejercicios con ExSplit».", "Right-click a PDF → Quick Actions → “Split exercises with ExSplit”."), autoHide: 7)
+                       detail: tr("Clic derecho en un PDF → Acciones rápidas → «SplitExercises».", "Right-click a PDF → Quick Actions → “SplitExercises”."), autoHide: 7)
         }
     }
 
@@ -300,7 +301,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
             self.runWindow?.close()
             self.run(urls, settings: s)
         }, onCancel: { [weak self] in self?.runWindow?.close() }, onSettings: { [weak self] in self?.showSettings() })
-        runWindow = makeWindow(title: tr("Dividir con ExSplit", "Split with ExSplit"), view: v)
+        runWindow = makeWindow(title: tr("Dividir con SplitExercises", "Split with SplitExercises"), view: v)
         present(runWindow!)
     }
 

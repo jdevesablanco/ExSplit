@@ -40,7 +40,7 @@ public enum Splitter {
             return (ocrDoc, p2)
         }
         if let p = first { return (doc, p) }
-        throw firstError ?? ExSplitError.noMarkers(url.lastPathComponent)
+        throw firstError ?? SplitExercisesError.noMarkers(url.lastPathComponent)
     }
 
     /// Genera el PDF dividido en `output` sin tocar nada más (modo "solo generar").
@@ -56,7 +56,7 @@ public enum Splitter {
         let fm = FileManager.default
         let folder = url.deletingLastPathComponent()
         let name = url.deletingPathExtension().lastPathComponent
-        let tmp = folder.appendingPathComponent(".exsplit-\(UUID().uuidString.prefix(8)).pdf")
+        let tmp = folder.appendingPathComponent(".splitexercises-\(UUID().uuidString.prefix(8)).pdf")
         defer { try? fm.removeItem(at: tmp) }
 
         let report = try generate(url, to: tmp, settings: s)
@@ -98,7 +98,7 @@ public enum Splitter {
     static func moveToOriginalFolder(_ url: URL, folder: URL, settings s: Settings) throws -> URL {
         let fm = FileManager.default
         let base = s.originalAction == .moveToDocuments ? (fm.urls(for: .documentDirectory, in: .userDomainMask).first ?? folder) : folder
-        let od = base.appendingPathComponent(s.originalFolderName.isEmpty ? "ExSplit" : s.originalFolderName, isDirectory: true)
+        let od = base.appendingPathComponent(s.originalFolderName.isEmpty ? "SplitExercises" : s.originalFolderName, isDirectory: true)
         try fm.createDirectory(at: od, withIntermediateDirectories: true)
         let target = uniqueURL(od.appendingPathComponent(url.lastPathComponent))
         try fm.moveItem(at: url, to: target)
@@ -123,7 +123,7 @@ public enum Splitter {
         let fm = FileManager.default
         var all = History.load()
         guard let idx = id.flatMap({ i in all.firstIndex(where: { $0.id == i }) }) ?? (all.isEmpty ? nil : all.count - 1) else {
-            throw ExSplitError.nothingToUndo
+            throw SplitExercisesError.nothingToUndo
         }
         let e = all[idx]
         let result = URL(fileURLWithPath: e.result)
@@ -132,7 +132,7 @@ public enum Splitter {
             try fm.moveItem(at: URL(fileURLWithPath: now), to: URL(fileURLWithPath: e.originalHome))
         } else if e.action == .trash {
             // el original está en la papelera: no sabemos dónde; avisamos al llamador dejándolo en el historial
-            throw ExSplitError.writeFailed("El original está en la Papelera: recupéralo desde Finder (⌘Z o «Volver a poner»).")
+            throw SplitExercisesError.writeFailed("El original está en la Papelera: recupéralo desde Finder (⌘Z o «Volver a poner»).")
         }
         all.remove(at: idx)
         History.save(all)
@@ -163,7 +163,7 @@ public enum History {
 }
 
 public enum Debug {
-    /// Vuelca las primeras líneas detectadas de una página (diagnóstico: `exsplit dump archivo.pdf [página]`).
+    /// Vuelca las primeras líneas detectadas de una página (diagnóstico: `splitexercises dump archivo.pdf [página]`).
     public static func dump(_ url: URL, page: Int = 1, settings: Settings) throws -> String {
         let doc = try SourceDocument(url: url, ocr: settings.ocr, languages: settings.ocrLanguages)
         guard page >= 1, page <= doc.pages.count else { return "página fuera de rango" }
@@ -178,7 +178,7 @@ public enum Debug {
 
 extension Debug {
     public static func normalize(_ url: URL, to out: URL) throws {
-        guard let pk = PDFDocument(url: url), let d = SourceDocument.normalizedData(from: pk) else { throw ExSplitError.cannotOpen("normalizar") }
+        guard let pk = PDFDocument(url: url), let d = SourceDocument.normalizedData(from: pk) else { throw SplitExercisesError.cannotOpen("normalizar") }
         try d.write(to: out)
     }
 }

@@ -2,17 +2,17 @@
 import PackageDescription
 
 let package = Package(
-    name: "ExSplit",
+    name: "SplitExercises",
     platforms: [.macOS(.v13)],
     products: [
-        .executable(name: "exsplit", targets: ["ExSplitCLI"]),
-        .executable(name: "ExSplitApp", targets: ["ExSplitApp"]),
+        .executable(name: "splitexercises", targets: ["SplitExercisesCLI"]),
+        .executable(name: "SplitExercisesApp", targets: ["SplitExercisesApp"]),
     ],
     targets: [
         // Motor: detección de ejercicios + maquetación. Solo frameworks de Apple (PDFKit, CoreGraphics, Vision).
-        .target(name: "ExSplitCore"),
-        .executableTarget(name: "ExSplitCLI", dependencies: ["ExSplitCore"]),
-        .executableTarget(name: "ExSplitApp", dependencies: ["ExSplitCore"]),
+        .target(name: "SplitExercisesCore"),
+        .executableTarget(name: "SplitExercisesCLI", dependencies: ["SplitExercisesCore"]),
+        .executableTarget(name: "SplitExercisesApp", dependencies: ["SplitExercisesCore"]),
     ],
     swiftLanguageVersions: [.v5]
 )

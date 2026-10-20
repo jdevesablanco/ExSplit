@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-/// Modo de verificación visual: `EXSPLIT_SNAPSHOT=/ruta ExSplit` renderiza las pantallas del onboarding a PNG y sale (sin ventanas).
+/// Modo de verificación visual: `SPLITEXERCISES_SNAPSHOT=/ruta SplitExercises` renderiza las pantallas del onboarding a PNG y sale (sin ventanas).
 enum Snapshot {
     @MainActor static func run(model: SettingsModel, dir: String) {
         try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)

@@ -1,9 +1,9 @@
 import Foundation
-import ExSplitCore
+import SplitExercisesCore
 import SwiftUI
 
 /// SwiftUI también define `Settings` (escena): fijamos cuál es el nuestro.
-typealias Settings = ExSplitCore.Settings
+typealias Settings = SplitExercisesCore.Settings
 
 /// Estado local para vistas SwiftUI sin usar `@State` (en los SDK recientes es un macro que exige Xcode completo).
 final class Local<T>: ObservableObject {
@@ -13,7 +13,7 @@ final class Local<T>: ObservableObject {
 
 enum AppInfo {
     static let version = "1.0.0"
-    static let repoURL = "https://github.com/jdevesablanco/ExSplit"
+    static let repoURL = "https://github.com/jdevesablanco/SplitExercises"
 }
 
 extension PaperSize {
@@ -54,7 +54,7 @@ extension OriginalAction {
     var title: String {
         switch self {
         case .moveToFolder: return tr("Moverlo a una subcarpeta nueva", "Move it to a new subfolder")
-        case .moveToDocuments: return tr("Moverlo a Documentos/ExSplit", "Move it to Documents/ExSplit")
+        case .moveToDocuments: return tr("Moverlo a Documentos/SplitExercises", "Move it to Documents/SplitExercises")
         case .trash: return tr("Mandarlo a la Papelera", "Move it to the Trash")
         case .keep: return tr("Dejarlo donde está", "Leave it where it is")
         }

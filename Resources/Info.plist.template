@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key><string>en</string>
-    <key>CFBundleDisplayName</key><string>ExSplit</string>
-    <key>CFBundleName</key><string>ExSplit</string>
-    <key>CFBundleExecutable</key><string>ExSplit</string>
+    <key>CFBundleDisplayName</key><string>SplitExercises</string>
+    <key>CFBundleName</key><string>SplitExercises</string>
+    <key>CFBundleExecutable</key><string>SplitExercises</string>
     <key>CFBundleIdentifier</key><string>@BUNDLE_ID@</string>
     <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>CFBundlePackageType</key><string>APPL</string>
@@ -31,12 +31,12 @@
         </dict>
     </array>
 
-    <!-- exsplit://split?path=…  y  exsplit://settings -->
+    <!-- splitexercises://split?path=…  y  splitexercises://settings -->
     <key>CFBundleURLTypes</key>
     <array>
         <dict>
             <key>CFBundleURLName</key><string>@BUNDLE_ID@</string>
-            <key>CFBundleURLSchemes</key><array><string>exsplit</string></array>
+            <key>CFBundleURLSchemes</key><array><string>splitexercises</string></array>
         </dict>
     </array>
 
@@ -44,9 +44,9 @@
     <key>NSServices</key>
     <array>
         <dict>
-            <key>NSMenuItem</key><dict><key>default</key><string>Split exercises with ExSplit</string></dict>
+            <key>NSMenuItem</key><dict><key>default</key><string>SplitExercises</string></dict>
             <key>NSMessage</key><string>splitFiles</string>
-            <key>NSPortName</key><string>ExSplit</string>
+            <key>NSPortName</key><string>SplitExercises</string>
             <key>NSSendFileTypes</key><array><string>com.adobe.pdf</string></array>
         </dict>
     </array>

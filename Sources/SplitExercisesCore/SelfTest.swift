@@ -8,7 +8,7 @@ public enum SelfTest {
     public static func run() -> (ok: Bool, log: String) {
         var log = ""
         let fm = FileManager.default
-        let dir = fm.temporaryDirectory.appendingPathComponent("exsplit-selftest-\(UUID().uuidString.prefix(6))")
+        let dir = fm.temporaryDirectory.appendingPathComponent("splitexercises-selftest-\(UUID().uuidString.prefix(6))")
         try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? fm.removeItem(at: dir) }
         let src = dir.appendingPathComponent("sintetico.pdf"), out = dir.appendingPathComponent("salida.pdf")

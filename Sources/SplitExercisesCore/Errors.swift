@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ExSplitError: LocalizedError {
+public enum SplitExercisesError: LocalizedError {
     case cannotOpen(String)
     case encrypted(String)
     case noMarkers(String)

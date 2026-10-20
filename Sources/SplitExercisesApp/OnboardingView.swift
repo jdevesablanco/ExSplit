@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import ExSplitCore
+import SplitExercisesCore
 
 /// Primer uso: 3 pasos (cómo quieres las hojas → dónde vive la app → integración con Finder).
 struct OnboardingView: View {
@@ -9,7 +9,6 @@ struct OnboardingView: View {
     let startDone: Bool
     @StateObject private var stepBox: Local<Int>
     @StateObject private var installQuickBox = Local(true)
-    @StateObject private var manageBox = Local(false)
     @StateObject private var doneBox: Local<Bool>   // pantalla final
     @StateObject private var dirBox = Local(1)   // 1 = avanzando, -1 = retrocediendo (dirección de la transición)
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -95,8 +94,8 @@ struct OnboardingView: View {
     var stepLayout: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(tr("¿Cómo quieres tus hojas?", "How do you want your sheets?")).font(.title2.bold())
-            Text(tr("ExSplit convierte un PDF de ejercicios en uno con un ejercicio por hoja. Elige lo básico; todo se puede cambiar luego en Ajustes.",
-                    "ExSplit turns an exercise PDF into one with one exercise per sheet. Pick the basics; you can change everything later in Settings."))
+            Text(tr("SplitExercises convierte un PDF de ejercicios en uno con un ejercicio por hoja. Elige lo básico; todo se puede cambiar luego en Ajustes.",
+                    "SplitExercises turns an exercise PDF into one with one exercise per sheet. Pick the basics; you can change everything later in Settings."))
                 .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             HStack(alignment: .top, spacing: 20) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -162,27 +161,17 @@ struct OnboardingView: View {
     // 2
     var stepMenuBar: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(tr("Dónde vive ExSplit", "Where ExSplit lives")).font(.title2.bold())
+            Text(tr("Dónde vive SplitExercises", "Where SplitExercises lives")).font(.title2.bold())
             menuBarMock
-            Text(tr("ExSplit puede quedarse en la barra de menús: desde ahí cambias lo más usado y deshaces la última división a un clic. No tiene icono en el Dock y casi no consume nada.",
-                    "ExSplit can live in the menu bar: from there you tweak the essentials and undo the last split in one click. No Dock icon, and it uses almost nothing."))
+            Text(tr("SplitExercises puede quedarse en la barra de menús: desde ahí cambias lo más usado y deshaces la última división a un clic. No tiene icono en el Dock y casi no consume nada.",
+                    "SplitExercises can live in the menu bar: from there you tweak the essentials and undo the last split in one click. No Dock icon, and it uses almost nothing."))
                 .fixedSize(horizontal: false, vertical: true)
             Label {
-                Text(tr("Cómo se usa: clic derecho en un PDF → Acciones rápidas → «Dividir ejercicios con ExSplit» (también en Servicios y Abrir con). El resultado aparece en la misma carpeta.",
-                        "How you use it: right-click a PDF → Quick Actions → “Split exercises with ExSplit” (also under Services and Open With). The result appears in the same folder."))
+                Text(tr("Cómo se usa: clic derecho en un PDF → Acciones rápidas → «SplitExercises» (también en Servicios y Abrir con). El resultado aparece en la misma carpeta.",
+                        "How you use it: right-click a PDF → Quick Actions → “SplitExercises” (also under Services and Open With). The result appears in the same folder."))
                     .font(.callout).fixedSize(horizontal: false, vertical: true)
             } icon: { Image(systemName: "cursorarrow.click.2").foregroundStyle(Color.accentColor) }
             Toggle(tr("Abrir al iniciar sesión", "Open at login"), isOn: $model.s.launchAtLogin)
-            VStack(alignment: .leading, spacing: 6) {
-                Label {
-                    Text(tr("¿Barra de menús demasiado llena?", "Menu bar getting too crowded?")).font(.callout.bold())
-                } icon: { Image(systemName: "menubar.rectangle").foregroundStyle(Color.accentColor) }
-                Text(tr("Instala también SimpleBar, nuestro gestor de barra de menús: ligero, gratis y open source. Deslizas los iconos a «siempre visibles», «ocultos» o «siempre ocultos».",
-                        "Also install SimpleBar, our menu bar manager: lightweight, free and open source. Slide icons to “always visible”, “hidden” or “always hidden”."))
-                    .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                Toggle(tr("Instalar SimpleBar (Próximamente)", "Install SimpleBar (Coming soon)"), isOn: $manageBox.v)
-            }
-            .padding(10).background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
         }
         .onAppear { model.s.showMenuBarIcon = true }
     }
@@ -205,17 +194,17 @@ struct OnboardingView: View {
     var stepFinder: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(tr("Úsalo con clic derecho", "Use it with a right-click")).font(.title2.bold())
-            Text(tr("Haz clic derecho sobre cualquier PDF. Elige dónde quieres encontrar ExSplit:", "Right-click any PDF. Choose where you want to find ExSplit:"))
+            Text(tr("Haz clic derecho sobre cualquier PDF. Elige dónde quieres encontrar SplitExercises:", "Right-click any PDF. Choose where you want to find SplitExercises:"))
             HStack(alignment: .top, spacing: 10) {
                 FinderChoiceCard(kind: .quickActions,
                                  title: tr("Acciones rápidas (y Servicios)", "Quick Actions (and Services)"),
                                  badge: tr("Recomendado", "Recommended"),
-                                 detail: tr("Clic derecho → Acciones rápidas → «Dividir ejercicios con ExSplit».", "Right-click → Quick Actions → “Split exercises with ExSplit”."),
+                                 detail: tr("Clic derecho → Acciones rápidas → «SplitExercises».", "Right-click → Quick Actions → “SplitExercises”."),
                                  isOn: $installQuickBox.v)
                 FinderChoiceCard(kind: .openWith,
                                  title: tr("Abrir con", "Open With"),
                                  badge: tr("Siempre disponible", "Always available"),
-                                 detail: tr("Clic derecho → Abrir con → ExSplit. No cambia tu lector de PDF por defecto.", "Right-click → Open With → ExSplit. Doesn't change your default PDF viewer."),
+                                 detail: tr("Clic derecho → Abrir con → SplitExercises. No cambia tu lector de PDF por defecto.", "Right-click → Open With → SplitExercises. Doesn't change your default PDF viewer."),
                                  isOn: .constant(true), locked: true)
             }
             .frame(maxHeight: .infinity)
@@ -360,7 +349,7 @@ struct FinderChoiceCard: View {
     }
 }
 
-/// Maqueta del menú contextual de Finder sobre un PDF, como se ve en macOS, con la entrada de ExSplit resaltada.
+/// Maqueta del menú contextual de Finder sobre un PDF, como se ve en macOS, con la entrada de SplitExercises resaltada.
 struct FinderMenuMock: View {
     enum Kind { case quickActions, openWith }
     let kind: Kind
@@ -396,12 +385,12 @@ struct FinderMenuMock: View {
         case .quickActions:
             return [Row(title: tr("Marcar", "Markup")),
                     Row(title: tr("Girar a la izquierda", "Rotate Left")),
-                    Row(title: tr("Dividir ejercicios con ExSplit", "Split exercises with ExSplit"), hl: true),
+                    Row(title: tr("SplitExercises", "SplitExercises"), hl: true),
                     Row(title: tr("Personalizar…", "Customize…"))]
         case .openWith:
             return [Row(title: tr("Vista Previa (predeterminada)", "Preview (default)")),
                     Row(title: "", sep: true),
-                    Row(title: "ExSplit", hl: true),
+                    Row(title: "SplitExercises", hl: true),
                     Row(title: "Safari"),
                     Row(title: tr("Otra…", "Other…"))]
         }

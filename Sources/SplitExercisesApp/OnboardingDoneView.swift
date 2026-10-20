@@ -1,5 +1,5 @@
 import SwiftUI
-import ExSplitCore
+import SplitExercisesCore
 
 /// Pantalla final del onboarding: animación de «todo listo» + «Combina bien con» (PackCatalog.swift, común a las apps del pack).
 struct OnboardingDoneView: View {
@@ -23,8 +23,8 @@ struct OnboardingDoneView: View {
             Text(tr("¡Todo configurado!", "All set!"))
                 .font(.system(size: 26, weight: .bold)).padding(.top, 10)
                 .opacity(phase.v >= 3 ? 1 : 0).offset(y: phase.v >= 3 ? 0 : 10)
-            Text(tr("Haz clic derecho sobre un PDF de ejercicios y elige «Dividir ejercicios con ExSplit».",
-                    "Right-click an exercise PDF and choose “Split exercises with ExSplit”."))
+            Text(tr("Haz clic derecho sobre un PDF de ejercicios y elige «SplitExercises».",
+                    "Right-click an exercise PDF and choose “SplitExercises”."))
                 .font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 .padding(.top, 4).padding(.horizontal, 70)
                 .opacity(phase.v >= 3 ? 1 : 0).offset(y: phase.v >= 3 ? 0 : 10)

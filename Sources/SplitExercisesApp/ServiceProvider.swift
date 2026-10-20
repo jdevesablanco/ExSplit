@@ -1,6 +1,6 @@
 import AppKit
 
-/// Entrada de «Servicios» de macOS (clic derecho → Servicios → Dividir ejercicios con ExSplit).
+/// Entrada de «Servicios» de macOS (clic derecho → Servicios → SplitExercises).
 final class ServiceProvider: NSObject {
     weak var delegate: AppDelegate?
 
