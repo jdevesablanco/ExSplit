@@ -19,8 +19,8 @@ Las hojas de ejercicios suelen meter 3–6 ejercicios por página. En el iPad (G
 
 | Método | Ideal para | |
 |---|---|---|
-| **[⬇ Instalador `.pkg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.pkg)** | Lo más fácil: doble clic, sin Terminal | Descarga directa |
-| **[⬇ Imagen de disco `.dmg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.dmg)** | Arrastrar la app a *Aplicaciones* | Descarga directa |
+| **[Instalador `.pkg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.pkg)** | Lo más fácil: doble clic, sin Terminal | Descarga directa |
+| **[Imagen de disco `.dmg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.dmg)** | Arrastrar la app a *Aplicaciones* | Descarga directa |
 | **Homebrew** | Usuarios de Terminal | `brew install --cask jdevesablanco/tap/splitexercises` |
 | **Homebrew (desde fuente)** | Sin aviso de Gatekeeper | `brew install jdevesablanco/tap/splitexercises && splitexercises install` |
 | **Desde el código** | Desarrolladores | `git clone … && Scripts/build-app.sh` |

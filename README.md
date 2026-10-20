@@ -19,8 +19,8 @@ Handouts usually cram 3–6 exercises on a page. On an iPad (Goodnotes, Notabili
 
 | Method | Best for | |
 |---|---|---|
-| **[⬇ Installer `.pkg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.pkg)** | Easiest: double-click, no Terminal | Direct download |
-| **[⬇ Disk image `.dmg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.dmg)** | Drag the app to *Applications* | Direct download |
+| **[Installer `.pkg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.pkg)** | Easiest: double-click, no Terminal | Direct download |
+| **[Disk image `.dmg`](https://github.com/jdevesablanco/SplitExercises/releases/latest/download/SplitExercises.dmg)** | Drag the app to *Applications* | Direct download |
 | **Homebrew** | Terminal users | `brew install --cask jdevesablanco/tap/splitexercises` |
 | **Homebrew (from source)** | No Gatekeeper warning | `brew install jdevesablanco/tap/splitexercises && splitexercises install` |
 | **From source** | Developers | `git clone … && Scripts/build-app.sh` |
