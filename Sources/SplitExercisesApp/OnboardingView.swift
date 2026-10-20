@@ -12,6 +12,7 @@ struct OnboardingView: View {
     @StateObject private var doneBox: Local<Bool>   // pantalla final
     @StateObject private var zoomBox = Local(false)    // paso 2: el icono de la barra de menús crece y vuelve
     @StateObject private var ringBox = Local(0)        // 0 reposo · 1 anillo pequeño · 2 anillo expandido
+    @StateObject private var ring2Box = Local(0)
     @StateObject private var dirBox = Local(1)   // 1 = avanzando, -1 = retrocediendo (dirección de la transición)
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     init(model: SettingsModel, startStep: Int = 0, startDone: Bool = false, finish: @escaping () -> Void) {
@@ -178,20 +179,21 @@ struct OnboardingView: View {
         .onAppear { model.s.showMenuBarIcon = true; zoomMenuBarIcon() }
     }
 
-    /// Efecto zoom (dos veces) sobre el icono de SplitExercises en la barra de menús: llama la atención sobre dónde vivirá la app.
+    /// Un único zoom, rápido y con rebote, sobre el icono de SplitExercises en la barra de menús (con dos ondas), para que se vea dónde vivirá.
     private func zoomMenuBarIcon() {
         guard !reduceMotion else { return }
-        func pulse(_ n: Int) {
-            guard n < 2 else { return }
-            ringBox.v = 1
-            DispatchQueue.main.async { withAnimation(.easeOut(duration: 1.1)) { ringBox.v = 2 } }
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.55)) { zoomBox.v = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-                withAnimation(.easeInOut(duration: 0.45)) { zoomBox.v = false }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { ringBox.v = 0; pulse(n + 1) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            ringBox.v = 1; ring2Box.v = 1
+            DispatchQueue.main.async {
+                withAnimation(.easeOut(duration: 0.9)) { ringBox.v = 2 }
+                withAnimation(.easeOut(duration: 1.0).delay(0.18)) { ring2Box.v = 2 }
+            }
+            withAnimation(.interpolatingSpring(stiffness: 260, damping: 9)) { zoomBox.v = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) { zoomBox.v = false }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { ringBox.v = 0; ring2Box.v = 0 }
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { pulse(0) }
     }
 
     var menuBarMock: some View {
@@ -201,12 +203,14 @@ struct OnboardingView: View {
                 .padding(4).background(RoundedRectangle(cornerRadius: 5).fill(model.s.showMenuBarIcon ? Color.accentColor.opacity(0.35) : Color.clear))
                 .opacity(model.s.showMenuBarIcon ? 1 : 0.15)
                 .background(
-                    Circle().stroke(Color.accentColor, lineWidth: 2)
-                        .frame(width: 30, height: 30)
-                        .scaleEffect(ringBox.v == 2 ? 3.2 : 0.8)
-                        .opacity(ringBox.v == 1 ? 0.9 : 0)
+                    ZStack {
+                        Circle().stroke(Color.accentColor, lineWidth: 2.5).frame(width: 30, height: 30)
+                            .scaleEffect(ringBox.v == 2 ? 4.2 : 0.8).opacity(ringBox.v == 1 ? 0.95 : 0)
+                        Circle().stroke(Color.accentColor, lineWidth: 1.5).frame(width: 30, height: 30)
+                            .scaleEffect(ring2Box.v == 2 ? 5.2 : 0.8).opacity(ring2Box.v == 1 ? 0.7 : 0)
+                    }
                 )
-                .scaleEffect(zoomBox.v ? 2.4 : 1)
+                .scaleEffect(zoomBox.v ? 3.0 : 1)
                 .zIndex(1)
             Image(systemName: "wifi"); Image(systemName: "battery.75")
             Text("Mon 9:41").font(.system(size: 12))
