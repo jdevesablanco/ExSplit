@@ -1,13 +1,13 @@
 cask "splitexercises" do
   version "1.0.0"
-  sha256 "REPLACE_WITH_DMG_SHA256"
+  sha256 "6d7ee16a92142cc38fdc0fc6a797dbd7d9e51679038bf4da84590257e8fa81e6"
 
   url "https://github.com/jdevesablanco/SplitExercises/releases/download/v#{version}/SplitExercises-#{version}.dmg"
   name "SplitExercises"
   desc "Split exercise PDFs into one exercise per sheet"
   homepage "https://github.com/jdevesablanco/SplitExercises"
 
-  depends_on macos: ">= :ventura"
+  depends_on macos: :ventura
 
   app "SplitExercises.app"
   binary "#{appdir}/SplitExercises.app/Contents/Resources/splitexercises"
