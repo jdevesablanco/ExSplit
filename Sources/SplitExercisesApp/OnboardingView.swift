@@ -10,6 +10,8 @@ struct OnboardingView: View {
     @StateObject private var stepBox: Local<Int>
     @StateObject private var installQuickBox = Local(true)
     @StateObject private var doneBox: Local<Bool>   // pantalla final
+    @StateObject private var zoomBox = Local(false)    // paso 2: el icono de la barra de menús crece y vuelve
+    @StateObject private var ringBox = Local(0)        // 0 reposo · 1 anillo pequeño · 2 anillo expandido
     @StateObject private var dirBox = Local(1)   // 1 = avanzando, -1 = retrocediendo (dirección de la transición)
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     init(model: SettingsModel, startStep: Int = 0, startDone: Bool = false, finish: @escaping () -> Void) {
@@ -84,7 +86,7 @@ struct OnboardingView: View {
                 }
             }.padding(16)
         }
-        .frame(width: 820, height: 600)
+        .frame(width: 820, height: 640)
         .overlay {
             if doneBox.v { OnboardingDoneView(finish: finish, startPhase: startDone ? 3 : 0).transition(.opacity) }
         }
@@ -173,7 +175,23 @@ struct OnboardingView: View {
             } icon: { Image(systemName: "cursorarrow.click.2").foregroundStyle(Color.accentColor) }
             Toggle(tr("Abrir al iniciar sesión", "Open at login"), isOn: $model.s.launchAtLogin)
         }
-        .onAppear { model.s.showMenuBarIcon = true }
+        .onAppear { model.s.showMenuBarIcon = true; zoomMenuBarIcon() }
+    }
+
+    /// Efecto zoom (dos veces) sobre el icono de SplitExercises en la barra de menús: llama la atención sobre dónde vivirá la app.
+    private func zoomMenuBarIcon() {
+        guard !reduceMotion else { return }
+        func pulse(_ n: Int) {
+            guard n < 2 else { return }
+            ringBox.v = 1
+            DispatchQueue.main.async { withAnimation(.easeOut(duration: 1.1)) { ringBox.v = 2 } }
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.55)) { zoomBox.v = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+                withAnimation(.easeInOut(duration: 0.45)) { zoomBox.v = false }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { ringBox.v = 0; pulse(n + 1) }
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { pulse(0) }
     }
 
     var menuBarMock: some View {
@@ -182,6 +200,14 @@ struct OnboardingView: View {
             Image(systemName: "rectangle.split.1x2")
                 .padding(4).background(RoundedRectangle(cornerRadius: 5).fill(model.s.showMenuBarIcon ? Color.accentColor.opacity(0.35) : Color.clear))
                 .opacity(model.s.showMenuBarIcon ? 1 : 0.15)
+                .background(
+                    Circle().stroke(Color.accentColor, lineWidth: 2)
+                        .frame(width: 30, height: 30)
+                        .scaleEffect(ringBox.v == 2 ? 3.2 : 0.8)
+                        .opacity(ringBox.v == 1 ? 0.9 : 0)
+                )
+                .scaleEffect(zoomBox.v ? 2.4 : 1)
+                .zIndex(1)
             Image(systemName: "wifi"); Image(systemName: "battery.75")
             Text("Mon 9:41").font(.system(size: 12))
         }
@@ -335,7 +361,7 @@ struct FinderChoiceCard: View {
                     Spacer(minLength: 0)
                 }
                 FinderMenuMock(kind: kind)
-                    .frame(maxWidth: .infinity, minHeight: 190, maxHeight: 190, alignment: .top)
+                    .frame(maxWidth: .infinity, minHeight: 130, maxHeight: 130, alignment: .top)
                 Text(detail).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
             }

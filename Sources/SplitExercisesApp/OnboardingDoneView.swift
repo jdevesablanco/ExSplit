@@ -42,7 +42,7 @@ struct OnboardingDoneView: View {
                     .keyboardShortcut(.defaultAction)
             }.padding(16)
         }
-        .frame(width: 820, height: 600)
+        .frame(width: 820, height: 640)
         .background(Color(nsColor: .windowBackgroundColor))
         .onAppear { if startPhase == 0 { run() } }
     }

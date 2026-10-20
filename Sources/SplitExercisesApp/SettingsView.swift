@@ -236,14 +236,13 @@ struct IntegrationTab: View {
             if let err { Text(err).foregroundStyle(.red).font(.caption) }
             Section(tr("Con Claude", "With Claude")) {
                 row(icon: "sparkles", title: tr("Claude (chat, Cowork y Claude Code)", "Claude (chat, Cowork and Claude Code)"),
-                    text: tr("Pídele «divide los ejercicios de esta carpeta». Claude Code usa un skill; la app de Claude, una herramienta (hay que reiniciarla una vez).",
-                             "Ask “split the exercises in this folder”. Claude Code uses a skill; the Claude app uses a tool (restart it once)."),
+                    text: tr("Pídele «divide los ejercicios de esta carpeta». Claude Code usa un skill; la app de Claude, una herramienta (se reinicia sola al instalar).",
+                             "Ask “split the exercises in this folder”. Claude Code uses a skill; the Claude app uses a tool (it restarts itself on install)."),
                     status: claudeStatusText) {
                     HStack {
-                        if claude.desktop && Integrations.claudeRunning { Button(tr("Reiniciar Claude", "Restart Claude")) { Integrations.restartClaude() } }
                         Button(claude.anyConnected ? tr("Quitar", "Remove") : tr("Instalar", "Install")) {
                             if claude.anyConnected { ClaudeSetup.disconnect(); claude = ClaudeSetup.status() }
-                            else { do { claude = try ClaudeSetup.connect(cliPath: Integrations.cliPath); err = claude.desktopError } catch { err = error.localizedDescription } }
+                            else { do { claude = try Integrations.installClaude().status; err = claude.desktopError } catch { err = error.localizedDescription } }
                         }
                     }
                 }

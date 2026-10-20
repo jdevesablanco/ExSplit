@@ -8,7 +8,7 @@ public enum ClaudeSkill {
     static let template = #"""
     ---
     name: splitexercises
-    description: Split exercise PDFs into one exercise per sheet with the SplitExercises macOS app (command line). Use when the user asks to split / divide / separate the exercises of a PDF, or of all the exercise PDFs in a folder ("divide los ejercicios de esta carpeta", "un ejercicio por hoja", "split these exercises"), on a Mac that has SplitExercises installed.
+    description: Split exercise PDFs into one exercise per sheet with the SplitExercises macOS app (command line). Use when the user asks to split / divide / separate the exercises of a PDF, or of all the exercise PDFs in a folder ("separa los ejercicios de este PDF", "divide los ejercicios de esta carpeta", "un ejercicio por hoja", "hazme una hoja por ejercicio para el iPad", "split this worksheet into exercises"), whenever the intent is to turn exercise PDFs into one exercise per sheet, on a Mac that has SplitExercises installed.
     ---
 
     # SplitExercises
