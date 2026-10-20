@@ -18,6 +18,11 @@ public enum SelfTest {
             var s = Settings()
             s.ocr = .never
             let r = try Splitter.generate(src, to: out, settings: s)
+            if let keep = ProcessInfo.processInfo.environment["SPLITEXERCISES_KEEP_FIXTURE"] { // dev: capturas del README
+                try? fm.createDirectory(atPath: keep, withIntermediateDirectories: true)
+                try? fm.copyItem(at: src, to: URL(fileURLWithPath: keep).appendingPathComponent("before.pdf"))
+                try? fm.copyItem(at: out, to: URL(fileURLWithPath: keep).appendingPathComponent("after.pdf"))
+            }
             log += "ejercicios detectados: \(r.exerciseCount) (esperados \(expected)); páginas \(r.sourcePages) → \(r.outputPages)\n"
             guard r.exerciseCount == expected else { return (false, log + "FALLO: número de ejercicios") }
             guard r.outputPages == expected else { return (false, log + "FALLO: cada ejercicio debía ocupar una hoja") }

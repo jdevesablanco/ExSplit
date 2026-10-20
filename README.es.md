@@ -4,6 +4,8 @@
 
 [English](README.md) · macOS 13+ · Apple Silicon e Intel · licencia MIT · sin red ni cuentas
 
+![Antes y después: un PDF de 2 páginas con 12 ejercicios pasa a un ejercicio por hoja](docs/images/before-after.png)
+
 Las hojas de ejercicios suelen meter 3–6 ejercicios por página. En el iPad (Goodnotes, Notability…) o en papel quieres **un ejercicio por hoja, con el contenido original intacto (vectorial, texto seleccionable) y espacio en blanco debajo**. SplitExercises localiza dónde empieza cada ejercicio, lo recorta del PDF original y lo coloca en una hoja nueva, uniendo los que se parten entre dos páginas.
 
 - Clic derecho en un PDF → **Acciones rápidas**, **Servicios** o **Abrir con**.
@@ -43,6 +45,12 @@ Está firmada *ad-hoc* y no notarizada por Apple, así que la primera vez: *Ajus
 Una bienvenida corta pregunta cómo quieres las hojas (posición de la etiqueta, zona de respuesta, qué hacer con el original), si SplitExercises debe vivir en la **barra de menús** (recomendado: cambias lo esencial o deshaces con un clic) o ser invisible, y qué entradas del clic derecho instalar.
 
 Sin icono en la barra la app no se queda abierta. Para cambiar ajustes después: ábrela desde Spotlight/Launchpad, o **mantén ⌥ (Option)** al lanzar la acción para elegir opciones solo esa vez.
+
+## Capturas
+
+| 1 · Tu formato | 2 · Barra de menús | 3 · Tres formas de usarlo |
+|:--:|:--:|:--:|
+| <img src="docs/images/onb-es-1.png" alt="1 · Tu formato"> | <img src="docs/images/onb-es-2.png" alt="2 · Barra de menús"> | <img src="docs/images/onb-es-3.png" alt="3 · Tres formas de usarlo"> |
 
 ## Uso
 

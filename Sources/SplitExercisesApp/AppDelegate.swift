@@ -37,6 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         PackCatalog.isSpanish = { tr("es", "en") == "es" }
         if let dir = ProcessInfo.processInfo.environment["SPLITEXERCISES_SNAPSHOT"] { Snapshot.run(model: model, dir: dir); NSApp.terminate(nil); return }
         Lang.forced = model.s.language
+        if let shot = ProcessInfo.processInfo.environment["SPLITEXERCISES_SHOT"] { captureWindow(spec: shot); return }
         let defaultLaunch = (n.userInfo?["NSApplicationLaunchIsDefaultLaunchKey"] as? Bool) ?? true
         let loginLaunch = launchedAsLoginItem()
         NSApp.servicesProvider = services
@@ -272,6 +273,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
             settingsWindow = w
         }
         present(settingsWindow!)
+    }
+
+    /// Dev: `SPLITEXERCISES_SHOT=onboarding:N|settings:N|done:/ruta.png` captura la ventana real (controles nativos) para el README.
+    func captureWindow(spec: String) {
+        let parts = spec.split(separator: ":", maxSplits: 2).map(String.init)
+        guard parts.count == 3 else { NSApp.terminate(nil); return }
+        let out = parts[2]
+        let w: NSWindow
+        switch parts[0] {
+        case "onboarding":
+            let v = OnboardingView(model: model, startStep: Int(parts[1]) ?? 0) {}
+            w = makeWindow(title: "", view: v)
+        case "done":
+            w = makeWindow(title: "", view: OnboardingView(model: model, startStep: 2, startDone: true) {})
+        default:
+            w = makeWindow(title: "", view: SettingsView(model: model, host: self))
+        }
+        present(w)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            if let v = w.contentView?.superview ?? w.contentView, let rep = v.bitmapImageRepForCachingDisplay(in: v.bounds) {
+                v.cacheDisplay(in: v.bounds, to: rep)
+                try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: out))
+            }
+            NSApp.terminate(nil)
+        }
     }
 
     func showOnboarding() {

@@ -4,6 +4,8 @@
 
 [Español](README.es.md) · macOS 13+ · Apple Silicon & Intel · MIT licence · no network, no accounts
 
+![Before and after: a 2-page PDF with 12 exercises becomes one exercise per sheet](docs/images/before-after.png)
+
 Handouts usually cram 3–6 exercises on a page. On an iPad (Goodnotes, Notability…) or on paper you want **one exercise per sheet, original content untouched (vector, selectable text), blank space below**. SplitExercises finds where each exercise starts, cuts it out of the original PDF and lays it on a fresh sheet, stitching together exercises that run over a page break.
 
 - Right-click a PDF → **Quick Actions**, **Services** or **Open With** — or just ask **Claude** to split a folder.
@@ -44,6 +46,12 @@ Or skip the dialog: `xattr -dr com.apple.quarantine /Applications/SplitExercises
 A short welcome asks how you want your sheets (label position, answer area, what to do with the original), whether SplitExercises should live in the **menu bar** (recommended: change the essentials or undo in one click) or stay invisible, and which right-click entries to install.
 
 Without the menu bar icon the app doesn't stay open. To change settings later: open SplitExercises from Spotlight/Launchpad, or **hold ⌥ (Option)** when you run the action to pick options just for that run.
+
+## Screenshots
+
+| 1 · Your layout | 2 · Menu bar | 3 · Three ways to use it |
+|:--:|:--:|:--:|
+| <img src="docs/images/onb-en-1.png" alt="1 · Your layout"> | <img src="docs/images/onb-en-2.png" alt="2 · Menu bar"> | <img src="docs/images/onb-en-3.png" alt="3 · Three ways to use it"> |
 
 ## Using it
 
