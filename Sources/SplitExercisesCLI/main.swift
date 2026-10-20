@@ -66,7 +66,7 @@ func line(_ r: SplitReport) {
 
 do {
     switch cmd {
-    case "--version", "version": print("splitexercises 1.0.0")
+    case "--version", "version": print("splitexercises 1.0.1")
     case "selftest":
         let r = SelfTest.run(); print(r.log); exit(r.ok ? 0 : 1)
     case "install":

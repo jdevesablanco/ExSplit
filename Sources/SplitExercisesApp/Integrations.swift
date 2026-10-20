@@ -22,7 +22,12 @@ enum Integrations {
     // que genera y mantiene la Acción rápida (y la lista en su selector). Si no, SplitExercises sigue con la suya.
 
     static let rycBundleID = "com.jdevesablanco.rightyourclick"
-    static var rightYourClickInstalled: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: rycBundleID) != nil }
+    /// Solo cede la Acción rápida a RightYourClick cuando está publicada (mientras sea «Próximamente», SplitExercises va por su cuenta).
+    static var rightYourClickReleased: Bool { PackCatalog.apps.first { $0.id == rycBundleID }?.released ?? false }
+    static var rightYourClickInstalled: Bool {
+        rightYourClickReleased
+            && NSWorkspace.shared.urlForApplication(withBundleIdentifier: rycBundleID) != nil
+    }
     static var rycActionURL: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("RightYourClick/actions/\(bundleID).split.json")
@@ -75,7 +80,7 @@ enum Integrations {
 
     static func installQuickAction() throws {
         // Siempre se declara en el registro (si RightYourClick llega después, la recoge sola).
-        try? registerWithRightYourClick()
+        if rightYourClickReleased { try? registerWithRightYourClick() }
         if rightYourClickInstalled { return }
         let fm = FileManager.default
         let contents = workflowURL.appendingPathComponent("Contents", isDirectory: true)
